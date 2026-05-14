@@ -1,0 +1,6 @@
+@GestionMateriel.Presentation_HostAddress = http://localhost:5001
+
+GET {{GestionMateriel.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

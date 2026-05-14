@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="GestionMateriel.Application/GestionMateriel.Application.csproj" />
+  <Project Path="GestionMateriel.Domain/GestionMateriel.Domain.csproj" />
+  <Project Path="GestionMateriel.Infrastructure/GestionMateriel.Infrastructure.csproj" />
+  <Project Path="GestionMateriel.Presentation/GestionMateriel.Presentation.csproj" />
+  <Project Path="GestionMateriel.Tests/GestionMateriel.Tests.csproj" />
+</Solution>
