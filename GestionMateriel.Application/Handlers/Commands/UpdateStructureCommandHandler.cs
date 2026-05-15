@@ -6,30 +6,21 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class UpdateStructureCommandHandler : IRequestHandler<UpdateStructureCommand, StructureResponse?>
+public class UpdateStructureCommandHandler(IStructureRepository structureRepository, IMapper mapper) : IRequestHandler<UpdateStructureCommand, StructureResponse?>
 {
-    private readonly IStructureRepository _structureRepository;
-    private readonly IMapper _mapper;
-
-    public UpdateStructureCommandHandler(IStructureRepository structureRepository, IMapper mapper)
-    {
-        _structureRepository = structureRepository;
-        _mapper = mapper;
-    }
-
     public async Task<StructureResponse?> Handle(UpdateStructureCommand command, CancellationToken cancellationToken)
     {
-        var entity = await _structureRepository.GetByIdAsync(command.Id);
+        var entity = await structureRepository.GetByIdAsync(command.Id);
         if (entity is null)
         {
             return null;
         }
 
-        _mapper.Map(command.Request, entity);
+        mapper.Map(command.Request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
-        await _structureRepository.UpdateAsync(entity);
-        await _structureRepository.SaveChangesAsync();
+        await structureRepository.UpdateAsync(entity);
+        await structureRepository.SaveChangesAsync();
 
-        return _mapper.Map<StructureResponse>(entity);
+        return mapper.Map<StructureResponse>(entity);
     }
 }

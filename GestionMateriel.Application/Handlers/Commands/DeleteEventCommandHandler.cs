@@ -4,25 +4,18 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, bool>
+public class DeleteEventCommandHandler(IEventRepository eventRepository) : IRequestHandler<DeleteEventCommand, bool>
 {
-    private readonly IEventRepository _eventRepository;
-
-    public DeleteEventCommandHandler(IEventRepository eventRepository)
-    {
-        _eventRepository = eventRepository;
-    }
-
     public async Task<bool> Handle(DeleteEventCommand command, CancellationToken cancellationToken)
     {
-        var entity = await _eventRepository.GetByIdAsync(command.Id);
+        var entity = await eventRepository.GetByIdAsync(command.Id);
         if (entity is null)
         {
             return false;
         }
 
-        await _eventRepository.DeleteAsync(command.Id);
-        await _eventRepository.SaveChangesAsync();
+        await eventRepository.DeleteAsync(command.Id);
+        await eventRepository.SaveChangesAsync();
         return true;
     }
 }

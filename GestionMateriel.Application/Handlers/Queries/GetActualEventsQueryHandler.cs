@@ -6,20 +6,11 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Queries;
 
-public class GetActualEventsQueryHandler : IRequestHandler<GetActualEventsQuery, IEnumerable<EventResponse>>
+public class GetActualEventsQueryHandler(IEventRepository eventRepository, IMapper mapper) : IRequestHandler<GetActualEventsQuery, IEnumerable<EventResponse>>
 {
-    private readonly IEventRepository _eventRepository;
-    private readonly IMapper _mapper;
-
-    public GetActualEventsQueryHandler(IEventRepository eventRepository, IMapper mapper)
-    {
-        _eventRepository = eventRepository;
-        _mapper = mapper;
-    }
-
     public async Task<IEnumerable<EventResponse>> Handle(GetActualEventsQuery query, CancellationToken cancellationToken)
     {
-        var events = await _eventRepository.GetActualEventsAsync();
-        return events.Select(e => _mapper.Map<EventResponse>(e));
+        var events = await eventRepository.GetActualEventsAsync();
+        return events.Select(e => mapper.Map<EventResponse>(e));
     }
 }

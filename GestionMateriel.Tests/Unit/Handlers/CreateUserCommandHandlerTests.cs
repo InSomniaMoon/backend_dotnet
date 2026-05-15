@@ -43,8 +43,8 @@ public class CreateUserCommandHandlerTests
         userRepoMock.Verify(r => r.AddAsync(It.Is<User>(u =>
             u.Email == request.Email &&
             u.Role == RoleEnum.Admin &&
-            !string.IsNullOrWhiteSpace(u.PasswordHash) &&
-            u.PasswordHash != request.Password)), Times.Once);
+            !string.IsNullOrWhiteSpace(u.Password) &&
+            u.Password != request.Password)), Times.Once);
         userRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 }

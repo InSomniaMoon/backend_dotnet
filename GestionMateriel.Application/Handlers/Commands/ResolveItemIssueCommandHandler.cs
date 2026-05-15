@@ -7,20 +7,11 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class ResolveItemIssueCommandHandler : IRequestHandler<ResolveItemIssueCommand, ItemIssueResponse?>
+public class ResolveItemIssueCommandHandler(IItemIssueRepository itemIssueRepository, IMapper mapper) : IRequestHandler<ResolveItemIssueCommand, ItemIssueResponse?>
 {
-    private readonly IItemIssueRepository _itemIssueRepository;
-    private readonly IMapper _mapper;
-
-    public ResolveItemIssueCommandHandler(IItemIssueRepository itemIssueRepository, IMapper mapper)
-    {
-        _itemIssueRepository = itemIssueRepository;
-        _mapper = mapper;
-    }
-
     public async Task<ItemIssueResponse?> Handle(ResolveItemIssueCommand command, CancellationToken cancellationToken)
     {
-        var issue = await _itemIssueRepository.GetByIdAsync(command.Id);
+        var issue = await itemIssueRepository.GetByIdAsync(command.Id);
         if (issue is null)
         {
             return null;
@@ -30,9 +21,9 @@ public class ResolveItemIssueCommandHandler : IRequestHandler<ResolveItemIssueCo
         issue.ResolutionDate = DateTime.UtcNow;
         issue.UpdatedAt = DateTime.UtcNow;
 
-        await _itemIssueRepository.UpdateAsync(issue);
-        await _itemIssueRepository.SaveChangesAsync();
+        await itemIssueRepository.UpdateAsync(issue);
+        await itemIssueRepository.SaveChangesAsync();
 
-        return _mapper.Map<ItemIssueResponse>(issue);
+        return mapper.Map<ItemIssueResponse>(issue);
     }
 }

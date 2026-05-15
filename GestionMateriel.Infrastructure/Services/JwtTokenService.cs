@@ -9,14 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace GestionMateriel.Infrastructure.Services;
 
-public class JwtTokenService : IJwtTokenService
+public class JwtTokenService(IOptions<JwtSettings> options) : IJwtTokenService
 {
-    private readonly JwtSettings _settings;
-
-    public JwtTokenService(IOptions<JwtSettings> options)
-    {
-        _settings = options.Value;
-    }
+    private readonly JwtSettings _settings = options.Value;
 
     public (string accessToken, DateTime expiresAtUtc) GenerateAccessToken(User user)
     {

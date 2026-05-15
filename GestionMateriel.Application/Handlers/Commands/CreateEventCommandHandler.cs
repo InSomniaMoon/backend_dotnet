@@ -7,17 +7,8 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, EventResponse>
+public class CreateEventCommandHandler(IEventRepository eventRepository, IMapper mapper) : IRequestHandler<CreateEventCommand, EventResponse>
 {
-    private readonly IEventRepository _eventRepository;
-    private readonly IMapper _mapper;
-
-    public CreateEventCommandHandler(IEventRepository eventRepository, IMapper mapper)
-    {
-        _eventRepository = eventRepository;
-        _mapper = mapper;
-    }
-
     public async Task<EventResponse> Handle(CreateEventCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
@@ -26,10 +17,10 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Eve
             throw new InvalidOperationException("EndDate must be greater than or equal to StartDate.");
         }
 
-        var entity = _mapper.Map<Event>(request);
-        await _eventRepository.AddAsync(entity);
-        await _eventRepository.SaveChangesAsync();
+        var entity = mapper.Map<Event>(request);
+        await eventRepository.AddAsync(entity);
+        await eventRepository.SaveChangesAsync();
 
-        return _mapper.Map<EventResponse>(entity);
+        return mapper.Map<EventResponse>(entity);
     }
 }

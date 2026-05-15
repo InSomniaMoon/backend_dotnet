@@ -4,25 +4,18 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class DeleteItemCommandHandler : IRequestHandler<DeleteItemCommand, bool>
+public class DeleteItemCommandHandler(IItemRepository itemRepository) : IRequestHandler<DeleteItemCommand, bool>
 {
-    private readonly IItemRepository _itemRepository;
-
-    public DeleteItemCommandHandler(IItemRepository itemRepository)
-    {
-        _itemRepository = itemRepository;
-    }
-
     public async Task<bool> Handle(DeleteItemCommand command, CancellationToken cancellationToken)
     {
-        var existingItem = await _itemRepository.GetByIdAsync(command.Id);
+        var existingItem = await itemRepository.GetByIdAsync(command.Id);
         if (existingItem is null)
         {
             return false;
         }
 
-        await _itemRepository.DeleteAsync(command.Id);
-        await _itemRepository.SaveChangesAsync();
+        await itemRepository.DeleteAsync(command.Id);
+        await itemRepository.SaveChangesAsync();
 
         return true;
     }

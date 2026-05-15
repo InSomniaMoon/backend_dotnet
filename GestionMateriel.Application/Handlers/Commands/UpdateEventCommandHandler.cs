@@ -6,17 +6,8 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, EventResponse?>
+public class UpdateEventCommandHandler(IEventRepository eventRepository, IMapper mapper) : IRequestHandler<UpdateEventCommand, EventResponse?>
 {
-    private readonly IEventRepository _eventRepository;
-    private readonly IMapper _mapper;
-
-    public UpdateEventCommandHandler(IEventRepository eventRepository, IMapper mapper)
-    {
-        _eventRepository = eventRepository;
-        _mapper = mapper;
-    }
-
     public async Task<EventResponse?> Handle(UpdateEventCommand command, CancellationToken cancellationToken)
     {
         if (command.Request.EndDate < command.Request.StartDate)
@@ -24,18 +15,18 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Eve
             throw new InvalidOperationException("EndDate must be greater than or equal to StartDate.");
         }
 
-        var entity = await _eventRepository.GetByIdAsync(command.Id);
+        var entity = await eventRepository.GetByIdAsync(command.Id);
         if (entity is null)
         {
             return null;
         }
 
-        _mapper.Map(command.Request, entity);
+        mapper.Map(command.Request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
 
-        await _eventRepository.UpdateAsync(entity);
-        await _eventRepository.SaveChangesAsync();
+        await eventRepository.UpdateAsync(entity);
+        await eventRepository.SaveChangesAsync();
 
-        return _mapper.Map<EventResponse>(entity);
+        return mapper.Map<EventResponse>(entity);
     }
 }

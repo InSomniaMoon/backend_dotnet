@@ -9,21 +9,14 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/v1/item-issues")]
-public class ItemIssuesController : ControllerBase
+[Route("api/item-issues")]
+public class ItemIssuesController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public ItemIssuesController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet("open")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetOpenIssues(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetOpenItemIssuesQuery(), cancellationToken);
+        var result = await mediator.Send(new GetOpenItemIssuesQuery(), cancellationToken);
         return Ok(result);
     }
 
@@ -31,7 +24,7 @@ public class ItemIssuesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetIssuesByItem([FromRoute] int itemId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetItemIssuesByItemQuery(itemId), cancellationToken);
+        var result = await mediator.Send(new GetItemIssuesByItemQuery(itemId), cancellationToken);
         return Ok(result);
     }
 
@@ -39,7 +32,7 @@ public class ItemIssuesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateIssue([FromBody] CreateItemIssueRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new CreateItemIssueCommand(request), cancellationToken);
+        var result = await mediator.Send(new CreateItemIssueCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetIssuesByItem), new { itemId = result.ItemId }, result);
     }
 
@@ -48,7 +41,7 @@ public class ItemIssuesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ResolveIssue([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new ResolveItemIssueCommand(id), cancellationToken);
+        var result = await mediator.Send(new ResolveItemIssueCommand(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -56,7 +49,7 @@ public class ItemIssuesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetComments([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetItemIssueCommentsQuery(id), cancellationToken);
+        var result = await mediator.Send(new GetItemIssueCommentsQuery(id), cancellationToken);
         return Ok(result);
     }
 
@@ -65,7 +58,7 @@ public class ItemIssuesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateComment([FromRoute] int id, [FromBody] CreateItemIssueCommentRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new CreateItemIssueCommentCommand(id, request), cancellationToken);
+        var result = await mediator.Send(new CreateItemIssueCommentCommand(id, request), cancellationToken);
         return result is null ? NotFound() : StatusCode(StatusCodes.Status201Created, result);
     }
 }

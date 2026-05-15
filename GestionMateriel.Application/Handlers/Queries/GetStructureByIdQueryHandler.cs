@@ -6,20 +6,11 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Queries;
 
-public class GetStructureByIdQueryHandler : IRequestHandler<GetStructureByIdQuery, StructureResponse?>
+public class GetStructureByIdQueryHandler(IStructureRepository structureRepository, IMapper mapper) : IRequestHandler<GetStructureByIdQuery, StructureResponse?>
 {
-    private readonly IStructureRepository _structureRepository;
-    private readonly IMapper _mapper;
-
-    public GetStructureByIdQueryHandler(IStructureRepository structureRepository, IMapper mapper)
-    {
-        _structureRepository = structureRepository;
-        _mapper = mapper;
-    }
-
     public async Task<StructureResponse?> Handle(GetStructureByIdQuery query, CancellationToken cancellationToken)
     {
-        var entity = await _structureRepository.GetByIdAsync(query.Id);
-        return entity is null ? null : _mapper.Map<StructureResponse>(entity);
+        var entity = await structureRepository.GetByIdAsync(query.Id);
+        return entity is null ? null : mapper.Map<StructureResponse>(entity);
     }
 }

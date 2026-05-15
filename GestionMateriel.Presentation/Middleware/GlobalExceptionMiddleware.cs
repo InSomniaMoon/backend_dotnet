@@ -3,36 +3,27 @@ using GestionMateriel.Application.DTOs.Common;
 
 namespace GestionMateriel.Presentation.Middleware;
 
-public class GlobalExceptionMiddleware
+public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalExceptionMiddleware> _logger;
-
-    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "Business rule error");
+            logger.LogWarning(ex, "Business rule error");
             await WriteErrorAsync(context, StatusCodes.Status400BadRequest, ex.Message);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogWarning(ex, "Unauthorized access");
+            logger.LogWarning(ex, "Unauthorized access");
             await WriteErrorAsync(context, StatusCodes.Status401Unauthorized, "Unauthorized");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception");
+            logger.LogError(ex, "Unhandled exception");
             await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.", ex.Message);
         }
     }

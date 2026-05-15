@@ -1,8 +1,31 @@
 namespace GestionMateriel.Domain.Enums;
 
-public enum RoleEnum
+public sealed class RoleEnum
 {
-    User = 0,
-    Admin = 1,
-    AppAdmin = 2
+    public string Value { get; }
+
+    private RoleEnum(string value)
+    {
+        Value = value;
+    }
+
+    public static readonly RoleEnum User = new("user");
+    public static readonly RoleEnum Admin = new("admin");
+
+    public static IEnumerable<RoleEnum> List() => [User, Admin];
+
+    public override string ToString() => Value;
+
+    public static RoleEnum FromString(string value)
+    {
+        return List().FirstOrDefault(r => r.Value == value)
+               ?? throw new ArgumentException($"Invalid role value: {value}");
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is RoleEnum other && Value == other.Value;
+    }
+
+    public override int GetHashCode() => Value.GetHashCode();
 }

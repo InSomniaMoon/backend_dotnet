@@ -7,26 +7,17 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Queries;
 
-public class GetItemsQueryHandler : IRequestHandler<GetItemsQuery, PaginatedResponse<ItemResponse>>
+public class GetItemsQueryHandler(IItemRepository itemRepository, IMapper mapper) : IRequestHandler<GetItemsQuery, PaginatedResponse<ItemResponse>>
 {
-    private readonly IItemRepository _itemRepository;
-    private readonly IMapper _mapper;
-
-    public GetItemsQueryHandler(IItemRepository itemRepository, IMapper mapper)
-    {
-        _itemRepository = itemRepository;
-        _mapper = mapper;
-    }
-
     public async Task<PaginatedResponse<ItemResponse>> Handle(GetItemsQuery request, CancellationToken cancellationToken)
     {
-        var items = (await _itemRepository.GetByStructureAsync(request.StructureId)).ToList();
+        var items = (await itemRepository.GetByStructureAsync(request.StructureId)).ToList();
         var totalCount = items.Count;
 
         var pagedItems = items
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(item => _mapper.Map<ItemResponse>(item))
+            .Select(item => mapper.Map<ItemResponse>(item))
             .ToList();
 
         return new PaginatedResponse<ItemResponse>

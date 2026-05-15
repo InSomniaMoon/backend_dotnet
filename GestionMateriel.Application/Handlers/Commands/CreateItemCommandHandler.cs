@@ -6,24 +6,15 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, ItemResponse>
+public class CreateItemCommandHandler(IItemRepository itemRepository, IMapper mapper) : IRequestHandler<CreateItemCommand, ItemResponse>
 {
-    private readonly IItemRepository _itemRepository;
-    private readonly IMapper _mapper;
-
-    public CreateItemCommandHandler(IItemRepository itemRepository, IMapper mapper)
-    {
-        _itemRepository = itemRepository;
-        _mapper = mapper;
-    }
-
     public async Task<ItemResponse> Handle(CreateItemCommand command, CancellationToken cancellationToken)
     {
-        var item = _mapper.Map<Domain.Entities.Item>(command.Request);
+        var item = mapper.Map<Domain.Entities.Item>(command.Request);
 
-        await _itemRepository.AddAsync(item);
-        await _itemRepository.SaveChangesAsync();
+        await itemRepository.AddAsync(item);
+        await itemRepository.SaveChangesAsync();
 
-        return _mapper.Map<ItemResponse>(item);
+        return mapper.Map<ItemResponse>(item);
     }
 }

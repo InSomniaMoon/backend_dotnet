@@ -8,52 +8,39 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class AddUserToStructureCommandHandler : IRequestHandler<AddUserToStructureCommand, StructureMemberResponse?>
+public class AddUserToStructureCommandHandler(
+    IUserRepository userRepository,
+    IStructureRepository structureRepository,
+    IUserStructureRepository userStructureRepository,
+    IMapper mapper) : IRequestHandler<AddUserToStructureCommand, StructureMemberResponse?>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IStructureRepository _structureRepository;
-    private readonly IUserStructureRepository _userStructureRepository;
-    private readonly IMapper _mapper;
-
-    public AddUserToStructureCommandHandler(
-        IUserRepository userRepository,
-        IStructureRepository structureRepository,
-        IUserStructureRepository userStructureRepository,
-        IMapper mapper)
-    {
-        _userRepository = userRepository;
-        _structureRepository = structureRepository;
-        _userStructureRepository = userStructureRepository;
-        _mapper = mapper;
-    }
-
     public async Task<StructureMemberResponse?> Handle(AddUserToStructureCommand command, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(command.Request.UserId);
-        var structure = await _structureRepository.GetByIdAsync(command.Request.StructureId);
+        var user = await userRepository.GetByIdAsync(command.Request.UserId);
+        var structure = await structureRepository.GetByIdAsync(command.Request.StructureId);
         if (user is null || structure is null)
         {
             return null;
         }
 
-        var existing = await _userStructureRepository.GetAsync(command.Request.UserId, command.Request.StructureId);
+        var existing = await userStructureRepository.GetAsync(command.Request.UserId, command.Request.StructureId);
         if (existing is not null)
         {
-            existing.Role = Enum.Parse<RoleEnum>(command.Request.Role, true);
-            await _userStructureRepository.SaveChangesAsync();
-            return _mapper.Map<StructureMemberResponse>(existing);
+            existing.Role = RoleEnum.FromString(command.Request.Role);
+            await userStructureRepository.SaveChangesAsync();
+            return mapper.Map<StructureMemberResponse>(existing);
         }
 
         var userStructure = new UserStructure
         {
             UserId = command.Request.UserId,
             StructureId = command.Request.StructureId,
-            Role = Enum.Parse<RoleEnum>(command.Request.Role, true)
+            Role = RoleEnum.FromString(command.Request.Role)
         };
 
-        await _userStructureRepository.AddAsync(userStructure);
-        await _userStructureRepository.SaveChangesAsync();
+        await userStructureRepository.AddAsync(userStructure);
+        await userStructureRepository.SaveChangesAsync();
 
-        return _mapper.Map<StructureMemberResponse>(userStructure);
+        return mapper.Map<StructureMemberResponse>(userStructure);
     }
 }

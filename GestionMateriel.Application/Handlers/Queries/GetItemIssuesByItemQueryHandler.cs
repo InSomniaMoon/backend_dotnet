@@ -6,20 +6,11 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Queries;
 
-public class GetItemIssuesByItemQueryHandler : IRequestHandler<GetItemIssuesByItemQuery, IEnumerable<ItemIssueResponse>>
+public class GetItemIssuesByItemQueryHandler(IItemIssueRepository itemIssueRepository, IMapper mapper) : IRequestHandler<GetItemIssuesByItemQuery, IEnumerable<ItemIssueResponse>>
 {
-    private readonly IItemIssueRepository _itemIssueRepository;
-    private readonly IMapper _mapper;
-
-    public GetItemIssuesByItemQueryHandler(IItemIssueRepository itemIssueRepository, IMapper mapper)
-    {
-        _itemIssueRepository = itemIssueRepository;
-        _mapper = mapper;
-    }
-
     public async Task<IEnumerable<ItemIssueResponse>> Handle(GetItemIssuesByItemQuery query, CancellationToken cancellationToken)
     {
-        var issues = await _itemIssueRepository.GetByItemAsync(query.ItemId);
-        return issues.Select(i => _mapper.Map<ItemIssueResponse>(i));
+        var issues = await itemIssueRepository.GetByItemAsync(query.ItemId);
+        return issues.Select(i => mapper.Map<ItemIssueResponse>(i));
     }
 }

@@ -9,22 +9,15 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/v1/[controller]")]
-public class ItemsController : ControllerBase
+[Route("api/[controller]")]
+public class ItemsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public ItemsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetItems([FromQuery] GetItemsRequest request, CancellationToken cancellationToken)
     {
         var query = new GetItemsQuery(request.StructureId, request.PageNumber, request.PageSize);
-        var result = await _mediator.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }
 
@@ -33,7 +26,7 @@ public class ItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetItemById([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetItemByIdQuery(id), cancellationToken);
+        var result = await mediator.Send(new GetItemByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -42,7 +35,7 @@ public class ItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateItem([FromBody] CreateItemRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new CreateItemCommand(request), cancellationToken);
+        var result = await mediator.Send(new CreateItemCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetItemById), new { id = result.Id }, result);
     }
 
@@ -51,7 +44,7 @@ public class ItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateItem([FromRoute] int id, [FromBody] UpdateItemRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new UpdateItemCommand(id, request), cancellationToken);
+        var result = await mediator.Send(new UpdateItemCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -60,7 +53,7 @@ public class ItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteItem([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteItemCommand(id), cancellationToken);
+        var deleted = await mediator.Send(new DeleteItemCommand(id), cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
 }

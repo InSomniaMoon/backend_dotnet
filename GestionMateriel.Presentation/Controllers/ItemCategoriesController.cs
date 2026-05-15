@@ -9,21 +9,14 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/v1/item-categories")]
-public class ItemCategoriesController : ControllerBase
+[Route("api/item-categories")]
+public class ItemCategoriesController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public ItemCategoriesController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCategories([FromQuery] GetItemCategoriesRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetItemCategoriesQuery(request.StructureId), cancellationToken);
+        var result = await mediator.Send(new GetItemCategoriesQuery(request.StructureId), cancellationToken);
         return Ok(result);
     }
 
@@ -32,7 +25,7 @@ public class ItemCategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCategoryById([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetItemCategoryByIdQuery(id), cancellationToken);
+        var result = await mediator.Send(new GetItemCategoryByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -40,7 +33,7 @@ public class ItemCategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateItemCategoryRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new CreateItemCategoryCommand(request), cancellationToken);
+        var result = await mediator.Send(new CreateItemCategoryCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetCategoryById), new { id = result.Id }, result);
     }
 
@@ -49,7 +42,7 @@ public class ItemCategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] UpdateItemCategoryRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new UpdateItemCategoryCommand(id, request), cancellationToken);
+        var result = await mediator.Send(new UpdateItemCategoryCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -58,7 +51,7 @@ public class ItemCategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCategory([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteItemCategoryCommand(id), cancellationToken);
+        var deleted = await mediator.Send(new DeleteItemCategoryCommand(id), cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
 }

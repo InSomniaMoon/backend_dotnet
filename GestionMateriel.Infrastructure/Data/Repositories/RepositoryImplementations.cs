@@ -4,16 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Data.Repositories;
 
-public class Repository<T> : IRepository<T> where T : BaseEntity
+public class Repository<T>(GestionMaterielDbContext context) : IRepository<T> where T : BaseEntity
 {
-    protected readonly GestionMaterielDbContext Context;
-    protected readonly DbSet<T> DbSet;
-
-    public Repository(GestionMaterielDbContext context)
-    {
-        Context = context;
-        DbSet = context.Set<T>();
-    }
+    protected readonly GestionMaterielDbContext Context = context;
+    protected readonly DbSet<T> DbSet = context.Set<T>();
 
     public virtual async Task<T?> GetByIdAsync(int id)
     {
@@ -54,15 +48,11 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     }
 }
 
-public class UserRepository : Repository<User>, IUserRepository
+public class UserRepository(GestionMaterielDbContext context) : Repository<User>(context), IUserRepository
 {
-    public UserRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await Context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await Context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<User?> GetWithStructuresAsync(int userId)
@@ -70,16 +60,13 @@ public class UserRepository : Repository<User>, IUserRepository
         return await Context.Users
             .Include(u => u.UserStructures)
                 .ThenInclude(us => us.Structure)
+            .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 }
 
-public class ItemRepository : Repository<Item>, IItemRepository
+public class ItemRepository(GestionMaterielDbContext context) : Repository<Item>(context), IItemRepository
 {
-    public ItemRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<IEnumerable<Item>> GetByStructureAsync(int structureId)
     {
         return await Context.Items
@@ -97,12 +84,8 @@ public class ItemRepository : Repository<Item>, IItemRepository
     }
 }
 
-public class ItemCategoryRepository : Repository<ItemCategory>, IItemCategoryRepository
+public class ItemCategoryRepository(GestionMaterielDbContext context) : Repository<ItemCategory>(context), IItemCategoryRepository
 {
-    public ItemCategoryRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<IEnumerable<ItemCategory>> GetByStructureAsync(int structureId)
     {
         return await Context.ItemCategories
@@ -113,12 +96,8 @@ public class ItemCategoryRepository : Repository<ItemCategory>, IItemCategoryRep
     }
 }
 
-public class ItemIssueRepository : Repository<ItemIssue>, IItemIssueRepository
+public class ItemIssueRepository(GestionMaterielDbContext context) : Repository<ItemIssue>(context), IItemIssueRepository
 {
-    public ItemIssueRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<IEnumerable<ItemIssue>> GetOpenIssuesAsync()
     {
         return await Context.ItemIssues
@@ -138,12 +117,8 @@ public class ItemIssueRepository : Repository<ItemIssue>, IItemIssueRepository
     }
 }
 
-public class ItemIssueCommentRepository : Repository<ItemIssueComment>, IItemIssueCommentRepository
+public class ItemIssueCommentRepository(GestionMaterielDbContext context) : Repository<ItemIssueComment>(context), IItemIssueCommentRepository
 {
-    public ItemIssueCommentRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<IEnumerable<ItemIssueComment>> GetByIssueAsync(int itemIssueId)
     {
         return await Context.ItemIssueComments
@@ -154,12 +129,8 @@ public class ItemIssueCommentRepository : Repository<ItemIssueComment>, IItemIss
     }
 }
 
-public class EventRepository : Repository<Event>, IEventRepository
+public class EventRepository(GestionMaterielDbContext context) : Repository<Event>(context), IEventRepository
 {
-    public EventRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<IEnumerable<Event>> GetEventsByStructureAsync(int structureId)
     {
         return await Context.Events
@@ -180,18 +151,11 @@ public class EventRepository : Repository<Event>, IEventRepository
     }
 }
 
-public class EventSubscriptionRepository : IEventSubscriptionRepository
+public class EventSubscriptionRepository(GestionMaterielDbContext context) : IEventSubscriptionRepository
 {
-    private readonly GestionMaterielDbContext _context;
-
-    public EventSubscriptionRepository(GestionMaterielDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<IEnumerable<EventSubscription>> GetByEventAsync(int eventId)
     {
-        return await _context.EventSubscriptions
+        return await context.EventSubscriptions
             .AsNoTracking()
             .Where(es => es.EventId == eventId)
             .OrderBy(es => es.ItemId)
@@ -200,34 +164,30 @@ public class EventSubscriptionRepository : IEventSubscriptionRepository
 
     public async Task<EventSubscription?> GetAsync(int eventId, int itemId)
     {
-        return await _context.EventSubscriptions
+        return await context.EventSubscriptions
             .FirstOrDefaultAsync(es => es.EventId == eventId && es.ItemId == itemId);
     }
 
     public async Task<EventSubscription> AddAsync(EventSubscription subscription)
     {
-        await _context.EventSubscriptions.AddAsync(subscription);
+        await context.EventSubscriptions.AddAsync(subscription);
         return subscription;
     }
 
     public Task DeleteAsync(EventSubscription subscription)
     {
-        _context.EventSubscriptions.Remove(subscription);
+        context.EventSubscriptions.Remove(subscription);
         return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync()
     {
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 }
 
-public class StructureRepository : Repository<Structure>, IStructureRepository
+public class StructureRepository(GestionMaterielDbContext context) : Repository<Structure>(context), IStructureRepository
 {
-    public StructureRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<Structure?> GetWithMembersAsync(int id)
     {
         return await Context.Structures
@@ -237,24 +197,17 @@ public class StructureRepository : Repository<Structure>, IStructureRepository
     }
 }
 
-public class UserStructureRepository : IUserStructureRepository
+public class UserStructureRepository(GestionMaterielDbContext context) : IUserStructureRepository
 {
-    private readonly GestionMaterielDbContext _context;
-
-    public UserStructureRepository(GestionMaterielDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<UserStructure?> GetAsync(int userId, int structureId)
     {
-        return await _context.UserStructures
+        return await context.UserStructures
             .FirstOrDefaultAsync(us => us.UserId == userId && us.StructureId == structureId);
     }
 
     public async Task<IEnumerable<UserStructure>> GetByUserAsync(int userId)
     {
-        return await _context.UserStructures
+        return await context.UserStructures
             .AsNoTracking()
             .Where(us => us.UserId == userId)
             .Include(us => us.Structure)
@@ -263,27 +216,23 @@ public class UserStructureRepository : IUserStructureRepository
 
     public async Task AddAsync(UserStructure userStructure)
     {
-        await _context.UserStructures.AddAsync(userStructure);
+        await context.UserStructures.AddAsync(userStructure);
     }
 
     public Task DeleteAsync(UserStructure userStructure)
     {
-        _context.UserStructures.Remove(userStructure);
+        context.UserStructures.Remove(userStructure);
         return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync()
     {
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 }
 
-public class RefreshTokenRepository : Repository<RefreshToken>, IRefreshTokenRepository
+public class RefreshTokenRepository(GestionMaterielDbContext context) : Repository<RefreshToken>(context), IRefreshTokenRepository
 {
-    public RefreshTokenRepository(GestionMaterielDbContext context) : base(context)
-    {
-    }
-
     public async Task<RefreshToken?> GetByTokenAsync(string token)
     {
         return await Context.RefreshTokens

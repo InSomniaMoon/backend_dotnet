@@ -1,4 +1,5 @@
 using GestionMateriel.Domain.Entities;
+using GestionMateriel.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,7 +24,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(255)
             .IsUnicode(false);
 
-        builder.Property(u => u.PasswordHash)
+        builder.Property(u => u.Password)
             .IsRequired();
 
         builder.Property(u => u.Phone)
@@ -62,6 +63,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne(fc => fc.User)
             .HasForeignKey(fc => fc.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // ValueConverter for RoleEnum
+        builder.Property(u => u.Role)
+            .HasConversion(
+                v => v.Value,
+                v => RoleEnum.FromString(v)
+            )
+            .HasMaxLength(20)
+            .IsUnicode(false);
     }
 }
 
@@ -112,6 +122,15 @@ public class UserStructureConfiguration : IEntityTypeConfiguration<UserStructure
             .WithMany(s => s.UserStructures)
             .HasForeignKey(us => us.StructureId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // ValueConverter for RoleEnum
+        builder.Property(us => us.Role)
+            .HasConversion(
+                v => v.Value,
+                v => RoleEnum.FromString(v)
+            )
+            .HasMaxLength(20)
+            .IsUnicode(false);
     }
 }
 

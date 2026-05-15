@@ -5,22 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
-public class AuthController : ControllerBase
+[Route("api/[controller]")]
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        var response = await _authService.LoginAsync(request, cancellationToken);
+        var response = await authService.LoginAsync(request, cancellationToken);
         if (response is null)
         {
             return Unauthorized(new { message = "Invalid email or password." });
@@ -36,7 +29,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var response = await _authService.RegisterAsync(request, cancellationToken);
+            var response = await authService.RegisterAsync(request, cancellationToken);
             return CreatedAtAction(nameof(Register), response);
         }
         catch (InvalidOperationException ex)
@@ -50,7 +43,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var response = await _authService.RefreshTokenAsync(request, cancellationToken);
+        var response = await authService.RefreshTokenAsync(request, cancellationToken);
         if (response is null)
         {
             return Unauthorized(new { message = "Refresh token is invalid or expired." });

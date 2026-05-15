@@ -8,20 +8,11 @@ using MediatR;
 
 namespace GestionMateriel.Application.Handlers.Commands;
 
-public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserResponse>
+public class CreateUserCommandHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<CreateUserCommand, UserResponse>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IMapper _mapper;
-
-    public CreateUserCommandHandler(IUserRepository userRepository, IMapper mapper)
-    {
-        _userRepository = userRepository;
-        _mapper = mapper;
-    }
-
     public async Task<UserResponse> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        var existing = await _userRepository.GetByEmailAsync(command.Request.Email);
+        var existing = await userRepository.GetByEmailAsync(command.Request.Email);
         if (existing is not null)
         {
             throw new InvalidOperationException("An account already exists with this email.");
@@ -33,13 +24,13 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserR
             LastName = command.Request.LastName,
             Email = command.Request.Email,
             Phone = command.Request.Phone,
-            PasswordHash = global::BCrypt.Net.BCrypt.HashPassword(command.Request.Password),
-            Role = Enum.Parse<RoleEnum>(command.Request.Role, true)
+            Password = global::BCrypt.Net.BCrypt.HashPassword(command.Request.Password),
+            Role = RoleEnum.FromString(command.Request.Role)
         };
 
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
+        await userRepository.AddAsync(user);
+        await userRepository.SaveChangesAsync();
 
-        return _mapper.Map<UserResponse>(user);
+        return mapper.Map<UserResponse>(user);
     }
 }

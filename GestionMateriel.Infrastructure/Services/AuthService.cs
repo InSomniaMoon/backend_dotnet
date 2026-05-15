@@ -9,34 +9,23 @@ using Microsoft.Extensions.Options;
 
 namespace GestionMateriel.Infrastructure.Services;
 
-public class AuthService : IAuthService
+public class AuthService(
+    IUserRepository userRepository,
+    IRefreshTokenRepository refreshTokenRepository,
+    IJwtTokenService jwtTokenService,
+    IOptions<JwtSettings> jwtOptions) : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IJwtTokenService _jwtTokenService;
-    private readonly JwtSettings _jwtSettings;
-
-    public AuthService(
-        IUserRepository userRepository,
-        IRefreshTokenRepository refreshTokenRepository,
-        IJwtTokenService jwtTokenService,
-        IOptions<JwtSettings> jwtOptions)
-    {
-        _userRepository = userRepository;
-        _refreshTokenRepository = refreshTokenRepository;
-        _jwtTokenService = jwtTokenService;
-        _jwtSettings = jwtOptions.Value;
-    }
+    private readonly JwtSettings _jwtSettings = jwtOptions.Value;
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByEmailAsync(request.Email);
+        var user = await userRepository.GetByEmailAsync(request.Email);
         if (user is null)
         {
             return null;
         }
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
         {
             return null;
         }
@@ -46,7 +35,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+        var existingUser = await userRepository.GetByEmailAsync(request.Email);
         if (existingUser is not null)
         {
             throw new InvalidOperationException("An account already exists with this email.");
@@ -58,19 +47,19 @@ public class AuthService : IAuthService
             LastName = request.LastName,
             Email = request.Email,
             Phone = request.Phone,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = RoleEnum.User
         };
 
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
+        await userRepository.AddAsync(user);
+        await userRepository.SaveChangesAsync();
 
         return await BuildAuthResponseAsync(user);
     }
 
     public async Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
-        var storedRefreshToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken);
+        var storedRefreshToken = await refreshTokenRepository.GetByTokenAsync(request.RefreshToken);
         if (storedRefreshToken is null || storedRefreshToken.ExpiresAt <= DateTime.UtcNow)
         {
             return null;
@@ -78,16 +67,16 @@ public class AuthService : IAuthService
 
         var user = storedRefreshToken.User;
 
-        await _refreshTokenRepository.DeleteAsync(storedRefreshToken.Id);
-        await _refreshTokenRepository.SaveChangesAsync();
+        await refreshTokenRepository.DeleteAsync(storedRefreshToken.Id);
+        await refreshTokenRepository.SaveChangesAsync();
 
         return await BuildAuthResponseAsync(user);
     }
 
     private async Task<AuthResponse> BuildAuthResponseAsync(User user)
     {
-        var (accessToken, expiresAtUtc) = _jwtTokenService.GenerateAccessToken(user);
-        var refreshTokenValue = _jwtTokenService.GenerateRefreshToken();
+        var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user);
+        var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
 
         var refreshToken = new RefreshToken
         {
@@ -96,8 +85,8 @@ public class AuthService : IAuthService
             ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays)
         };
 
-        await _refreshTokenRepository.AddAsync(refreshToken);
-        await _refreshTokenRepository.SaveChangesAsync();
+        await refreshTokenRepository.AddAsync(refreshToken);
+        await refreshTokenRepository.SaveChangesAsync();
 
         return new AuthResponse
         {

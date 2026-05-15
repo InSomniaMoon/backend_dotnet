@@ -4,13 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Data;
 
-public class GestionMaterielDbContext : DbContext
+public class GestionMaterielDbContext(DbContextOptions<GestionMaterielDbContext> options) : DbContext(options)
 {
-    public GestionMaterielDbContext(DbContextOptions<GestionMaterielDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<User> Users => Set<User>();
     public DbSet<Structure> Structures => Set<Structure>();
     public DbSet<UserStructure> UserStructures => Set<UserStructure>();
@@ -41,6 +36,8 @@ public class GestionMaterielDbContext : DbContext
         modelBuilder.ApplyConfiguration(new FeatureConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureClickConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
+
+
     }
 }
 

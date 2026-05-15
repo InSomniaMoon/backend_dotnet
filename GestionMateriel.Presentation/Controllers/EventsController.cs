@@ -9,23 +9,16 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/v1/events")]
-public class EventsController : ControllerBase
+[Route("api/events")]
+public class EventsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public EventsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEvents([FromQuery] GetEventsRequest request, CancellationToken cancellationToken)
     {
         if (request.ActualOnly)
         {
-            var actual = await _mediator.Send(new GetActualEventsQuery(), cancellationToken);
+            var actual = await mediator.Send(new GetActualEventsQuery(), cancellationToken);
             return Ok(actual);
         }
 
@@ -34,7 +27,7 @@ public class EventsController : ControllerBase
             return BadRequest(new { message = "structureId is required when actualOnly is false." });
         }
 
-        var events = await _mediator.Send(new GetEventsByStructureQuery(request.StructureId.Value), cancellationToken);
+        var events = await mediator.Send(new GetEventsByStructureQuery(request.StructureId.Value), cancellationToken);
         return Ok(events);
     }
 
@@ -43,7 +36,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetEventById([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetEventByIdQuery(id), cancellationToken);
+        var result = await mediator.Send(new GetEventByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -51,7 +44,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new CreateEventCommand(request), cancellationToken);
+        var result = await mediator.Send(new CreateEventCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetEventById), new { id = result.Id }, result);
     }
 
@@ -60,7 +53,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new UpdateEventCommand(id, request), cancellationToken);
+        var result = await mediator.Send(new UpdateEventCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -69,7 +62,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteEvent([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteEventCommand(id), cancellationToken);
+        var deleted = await mediator.Send(new DeleteEventCommand(id), cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
 
@@ -77,7 +70,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSubscriptions([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetEventSubscriptionsQuery(id), cancellationToken);
+        var result = await mediator.Send(new GetEventSubscriptionsQuery(id), cancellationToken);
         return Ok(result);
     }
 
@@ -86,7 +79,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddSubscription([FromRoute] int id, [FromBody] AddEventSubscriptionRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new AddEventSubscriptionCommand(id, request), cancellationToken);
+        var result = await mediator.Send(new AddEventSubscriptionCommand(id, request), cancellationToken);
         return result is null ? NotFound() : StatusCode(StatusCodes.Status201Created, result);
     }
 
@@ -95,7 +88,7 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveSubscription([FromRoute] int id, [FromRoute] int itemId, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new RemoveEventSubscriptionCommand(id, itemId), cancellationToken);
+        var deleted = await mediator.Send(new RemoveEventSubscriptionCommand(id, itemId), cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
 }
