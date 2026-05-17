@@ -1,3 +1,5 @@
+using GestionMateriel.Domain.Enums;
+
 namespace GestionMateriel.Application.DTOs.Responses;
 
 public class StructureResponse
@@ -10,4 +12,9 @@ public class StructureResponse
     public string? ParentCode { get; set; }
     public string? Color { get; set; }
     public string? ImagePath { get; set; }
+}
+
+public class StructureWithRoleResponse : StructureResponse
+{
+    public string Role { get; set; } = RoleEnum.User.ToString();
 }

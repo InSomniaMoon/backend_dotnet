@@ -45,8 +45,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(u => u.ReportedIssues)
-            .WithOne(ii => ii.ReportedBy)
-            .HasForeignKey(ii => ii.ReportedById)
+            .WithOne(ii => ii.ReportedByUser)
+            .HasForeignKey(ii => ii.ReportedBy)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(u => u.Comments)
@@ -56,7 +56,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasMany(u => u.CreatedEvents)
             .WithOne(e => e.CreatedBy)
-            .HasForeignKey(e => e.CreatedById)
+            .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasMany(u => u.FeatureClicks)
@@ -102,8 +102,36 @@ public class StructureConfiguration : IEntityTypeConfiguration<Structure>
             .HasMaxLength(7)
             .IsUnicode(false);
 
-        builder.Property(s => s.ImagePath)
+        builder.Property(s => s.Image)
             .HasMaxLength(500);
+
+        builder.Property(s => s.Type)
+                .HasConversion(
+                    v => v.Value,
+                    v => StructureTypeEnum.FromString(v)
+                )
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+        builder.HasMany(s => s.UserStructures)
+            .WithOne(us => us.Structure)
+            .HasForeignKey(us => us.StructureId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(s => s.Items)
+            .WithOne(i => i.Structure)
+            .HasForeignKey(i => i.StructureId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(s => s.ItemCategories)
+            .WithOne(c => c.Structure)
+            .HasForeignKey(c => c.StructureId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(s => s.Events)
+            .WithOne(e => e.Structure)
+            .HasForeignKey(e => e.StructureId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 
@@ -198,10 +226,19 @@ public class ItemIssueConfiguration : IEntityTypeConfiguration<ItemIssue>
             .HasForeignKey(ii => ii.ItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(ii => ii.ReportedBy)
+        builder.HasOne(ii => ii.ReportedByUser)
             .WithMany(u => u.ReportedIssues)
-            .HasForeignKey(ii => ii.ReportedById)
+            .HasForeignKey(ii => ii.ReportedBy)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ValueConverter for IssueStatusEnum
+        builder.Property(ii => ii.Status)
+            .HasConversion(
+                v => v.Value,
+                v => IssueStatusEnum.FromString(v)
+            )
+            .HasMaxLength(20)
+            .IsUnicode(false);
     }
 }
 
@@ -247,7 +284,7 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
 
         builder.HasOne(e => e.CreatedBy)
             .WithMany(u => u.CreatedEvents)
-            .HasForeignKey(e => e.CreatedById)
+            .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

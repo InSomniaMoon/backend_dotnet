@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestionMateriel.Application.DTOs.Requests;
+namespace GestionMateriel.Application.DTOs.Requests.Events;
 
-public class UpdateEventRequest
+public class CreateEventRequest
 {
     [Required]
     [MaxLength(255)]

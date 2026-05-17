@@ -1,11 +1,25 @@
+using GestionMateriel.Application.Services;
 using GestionMateriel.Domain.Entities;
+using GestionMateriel.Domain.Interfaces;
 using GestionMateriel.Infrastructure.Data.Configurations;
+using GestionMateriel.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace GestionMateriel.Infrastructure.Data;
 
-public class GestionMaterielDbContext(DbContextOptions<GestionMaterielDbContext> options) : DbContext(options)
+public class GestionMaterielDbContext(
+    DbContextOptions<GestionMaterielDbContext> options,
+    ITenantProvider tenantProvider,
+    IOptions<JwtSettings> jwtSettings
+    ) : DbContext(options)
 {
+    private readonly ITenantProvider _tenantProvider = tenantProvider;
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private bool HasTenantMask => !string.IsNullOrWhiteSpace(_tenantProvider.StructureMask);
+    private string TenantMask => _tenantProvider.StructureMask ?? string.Empty;
+    private string? TenantStructureCode => _tenantProvider.StructureCode;
+
     public DbSet<User> Users => Set<User>();
     public DbSet<Structure> Structures => Set<Structure>();
     public DbSet<UserStructure> UserStructures => Set<UserStructure>();
@@ -36,6 +50,98 @@ public class GestionMaterielDbContext(DbContextOptions<GestionMaterielDbContext>
         modelBuilder.ApplyConfiguration(new FeatureConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureClickConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
+
+        ApplyTenantQueryFilters(modelBuilder);
+
+
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ApplyTenantScopeOnAddedEntities();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        ApplyTenantScopeOnAddedEntities();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Structure>()
+            .HasQueryFilter(s => !HasTenantMask || s.CodeStructure.StartsWith(TenantMask));
+
+        modelBuilder.Entity<UserStructure>()
+            .HasQueryFilter(us => !HasTenantMask || us.Structure.CodeStructure.StartsWith(TenantMask));
+
+        modelBuilder.Entity<ItemCategory>()
+            .HasQueryFilter(c => !HasTenantMask || c.Structure.CodeStructure.StartsWith(TenantMask));
+
+        modelBuilder.Entity<Item>()
+            .HasQueryFilter(i => !HasTenantMask || (i.CodeStructure != null && i.CodeStructure.StartsWith(TenantMask)));
+
+        modelBuilder.Entity<ItemIssue>()
+            .HasQueryFilter(ii => !HasTenantMask || (ii.Item.CodeStructure != null && ii.Item.CodeStructure.StartsWith(TenantMask)));
+
+        modelBuilder.Entity<ItemIssueComment>()
+            .HasQueryFilter(c => !HasTenantMask || (c.ItemIssue.Item.CodeStructure != null && c.ItemIssue.Item.CodeStructure.StartsWith(TenantMask)));
+
+        modelBuilder.Entity<Event>()
+            .HasQueryFilter(e => !HasTenantMask || e.Structure.CodeStructure.StartsWith(TenantMask));
+
+        modelBuilder.Entity<EventSubscription>()
+            .HasQueryFilter(es => !HasTenantMask || es.Event.Structure.CodeStructure.StartsWith(TenantMask));
+    }
+
+    private void ApplyTenantScopeOnAddedEntities()
+    {
+        if (!_tenantProvider.IsResolved)
+        {
+            return;
+        }
+
+        var scopedEntries = ChangeTracker.Entries<IStructureCodeScopedEntity>()
+            .Where(e => e.State is EntityState.Added or EntityState.Modified)
+            .ToList();
+
+        var structureIds = scopedEntries
+            .Select(e => e.Entity.CodeStructure)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Distinct()
+            .ToList();
+
+        var structureCode = _jwtSettings.Structure.Role;
+
+        foreach (var entry in scopedEntries)
+        {
+            if (entry.Entity is IStructureCodeScopedEntity structureCodeScopedEntity)
+            {
+                structureCodeScopedEntity.CodeStructure = structureCode;
+            }
+
+            if (HasTenantMask && !structureCode.StartsWith(TenantMask, StringComparison.Ordinal))
+            {
+                throw new UnauthorizedAccessException("La structure demandee n'appartient pas au tenant courant.");
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<IStructureCodeScopedEntity>()
+                     .Where(e => e.State is EntityState.Added or EntityState.Modified))
+        {
+            if (string.IsNullOrWhiteSpace(entry.Entity.CodeStructure) && !string.IsNullOrWhiteSpace(TenantStructureCode))
+            {
+                entry.Entity.CodeStructure = TenantStructureCode;
+            }
+
+            if (HasTenantMask
+                && !string.IsNullOrWhiteSpace(entry.Entity.CodeStructure)
+                && !entry.Entity.CodeStructure.StartsWith(TenantMask, StringComparison.Ordinal))
+            {
+                throw new UnauthorizedAccessException("Le code structure n'appartient pas au tenant courant.");
+            }
+        }
 
 
     }

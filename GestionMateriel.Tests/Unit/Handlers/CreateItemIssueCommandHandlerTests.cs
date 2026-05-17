@@ -1,6 +1,6 @@
 using AutoMapper;
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Handlers.Commands;
 using GestionMateriel.Domain.Entities;
@@ -25,7 +25,7 @@ public class CreateItemIssueCommandHandlerTests
             AffectedQuantity = 1
         };
 
-        var issue = new ItemIssue { Id = 5, ItemId = 1, Value = "Zip casse", ReportedById = 2, AffectedQuantity = 1 };
+        var issue = new ItemIssue { Id = 5, ItemId = 1, Value = "Zip casse", ReportedBy = 2, AffectedQuantity = 1 };
 
         mapperMock.Setup(m => m.Map<ItemIssue>(request)).Returns(issue);
         mapperMock.Setup(m => m.Map<ItemIssueResponse>(issue)).Returns(new ItemIssueResponse { Id = 5, ItemId = 1 });

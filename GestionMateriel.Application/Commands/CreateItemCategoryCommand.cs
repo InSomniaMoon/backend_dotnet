@@ -1,4 +1,4 @@
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Application.DTOs.Responses;
 using MediatR;
 

@@ -30,13 +30,12 @@ public class AuthService(
             return null;
         }
 
-        return await BuildAuthResponseAsync(user);
+        return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure);
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        var existingUser = await userRepository.GetByEmailAsync(request.Email);
-        if (existingUser is not null)
+        if (await userRepository.IsEmailTakenAsync(request.Email))
         {
             throw new InvalidOperationException("An account already exists with this email.");
         }
@@ -54,7 +53,7 @@ public class AuthService(
         await userRepository.AddAsync(user);
         await userRepository.SaveChangesAsync();
 
-        return await BuildAuthResponseAsync(user);
+        return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure);
     }
 
     public async Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
@@ -67,15 +66,17 @@ public class AuthService(
 
         var user = storedRefreshToken.User;
 
+        var userstructure = user.UserStructures.FirstOrDefault()?.Structure;
+
         await refreshTokenRepository.DeleteAsync(storedRefreshToken.Id);
         await refreshTokenRepository.SaveChangesAsync();
 
-        return await BuildAuthResponseAsync(user);
+        return await BuildAuthResponseAsync(user, userstructure);
     }
 
-    private async Task<AuthResponse> BuildAuthResponseAsync(User user)
+    private async Task<AuthResponse> BuildAuthResponseAsync(User user, Structure? selectedStructure = null)
     {
-        var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user);
+        var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user, selectedStructure);
         var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
 
         var refreshToken = new RefreshToken
@@ -90,7 +91,7 @@ public class AuthService(
 
         return new AuthResponse
         {
-            AccessToken = accessToken,
+            Token = accessToken,
             RefreshToken = refreshTokenValue,
             ExpiresAtUtc = expiresAtUtc,
             User = new UserResponse
@@ -101,7 +102,19 @@ public class AuthService(
                 Email = user.Email,
                 Phone = user.Phone,
                 Role = user.Role.ToString()
-            }
+            },
+            Structures = [.. user.UserStructures.Select(s => new StructureWithRoleResponse
+            {
+                Id = s.StructureId,
+                Name = s.Structure.Name,
+                CodeStructure = s.Structure.CodeStructure,
+                NomStructure = s.Structure.NomStructure,
+                Type = s.Structure.Type.ToString(),
+                ParentCode = s.Structure.ParentCode,
+                Color = s.Structure.Color,
+                ImagePath = s.Structure.Image,
+                Role = s.Role.ToString()
+            })]
         };
     }
 }

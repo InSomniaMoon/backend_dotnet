@@ -2,7 +2,7 @@ using GestionMateriel.Domain.Entities;
 
 namespace GestionMateriel.Domain.Interfaces;
 
-public interface IRepository<T> where T : BaseEntity
+public interface IRepository<T>
 {
     Task<T?> GetByIdAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();
@@ -16,6 +16,7 @@ public interface IUserRepository : IRepository<User>
 {
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetWithStructuresAsync(int userId);
+    Task<bool> IsEmailTakenAsync(string email);
 }
 
 public interface IStructureRepository : IRepository<Structure>

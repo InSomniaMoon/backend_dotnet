@@ -1,15 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestionMateriel.Application.DTOs.Requests;
+namespace GestionMateriel.Application.DTOs.Requests.Categories;
 
-public class CreateItemCategoryRequest
+public class UpdateItemCategoryRequest
 {
     [Required]
     [MaxLength(255)]
     public string Name { get; set; } = string.Empty;
-
-    [Range(1, int.MaxValue)]
-    public int StructureId { get; set; }
 
     public bool Identified { get; set; }
 }

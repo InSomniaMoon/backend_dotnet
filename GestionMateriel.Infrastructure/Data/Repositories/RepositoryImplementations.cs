@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Data.Repositories;
 
-public class Repository<T>(GestionMaterielDbContext context) : IRepository<T> where T : BaseEntity
+public class Repository<T>(GestionMaterielDbContext context) : IRepository<T> where T : class
 {
     protected readonly GestionMaterielDbContext Context = context;
     protected readonly DbSet<T> DbSet = context.Set<T>();
@@ -52,7 +52,10 @@ public class UserRepository(GestionMaterielDbContext context) : Repository<User>
 {
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await Context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
+        return await Context.Users.AsNoTracking().AsSplitQuery()
+                .Include(u => u.UserStructures)
+                .ThenInclude(us => us.Structure)
+                .FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<User?> GetWithStructuresAsync(int userId)
@@ -61,7 +64,13 @@ public class UserRepository(GestionMaterielDbContext context) : Repository<User>
             .Include(u => u.UserStructures)
                 .ThenInclude(us => us.Structure)
             .AsNoTracking()
+            .AsSplitQuery()
             .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
+    public Task<bool> IsEmailTakenAsync(string email)
+    {
+        return Context.Users.AnyAsync(u => u.Email == email);
     }
 }
 
@@ -237,6 +246,8 @@ public class RefreshTokenRepository(GestionMaterielDbContext context) : Reposito
     {
         return await Context.RefreshTokens
             .Include(rt => rt.User)
+            .ThenInclude(u => u.UserStructures)
+            .ThenInclude(us => us.Structure)
             .FirstOrDefaultAsync(rt => rt.Token == token);
     }
 

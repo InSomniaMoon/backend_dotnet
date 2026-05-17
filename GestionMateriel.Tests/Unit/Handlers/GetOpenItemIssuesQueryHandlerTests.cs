@@ -18,7 +18,7 @@ public class GetOpenItemIssuesQueryHandlerTests
 
         repoMock.Setup(r => r.GetOpenIssuesAsync()).ReturnsAsync(new List<ItemIssue>
         {
-            new() { Id = 1, ItemId = 10, Value = "Issue 1", ReportedById = 1, AffectedQuantity = 1 }
+            new() { Id = 1, ItemId = 10, Value = "Issue 1", ReportedBy = 1, AffectedQuantity = 1 }
         });
 
         mapperMock.Setup(m => m.Map<ItemIssueResponse>(It.IsAny<ItemIssue>()))

@@ -11,8 +11,9 @@ public sealed class RoleEnum
 
     public static readonly RoleEnum User = new("user");
     public static readonly RoleEnum Admin = new("admin");
+    public static readonly RoleEnum AppAdmin = new("app_admin");
 
-    public static IEnumerable<RoleEnum> List() => [User, Admin];
+    public static IEnumerable<RoleEnum> List() => [User, Admin, AppAdmin];
 
     public override string ToString() => Value;
 

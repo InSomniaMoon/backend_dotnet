@@ -97,6 +97,7 @@ app.UseGlobalExceptionMiddleware();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
+app.UseTenantContextMiddleware();
 app.UseAuthorization();
 app.MapControllers();
 

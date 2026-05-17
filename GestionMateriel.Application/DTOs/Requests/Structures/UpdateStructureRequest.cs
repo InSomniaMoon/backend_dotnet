@@ -1,16 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestionMateriel.Application.DTOs.Requests;
+namespace GestionMateriel.Application.DTOs.Requests.Structures;
 
-public class CreateStructureRequest
+public class UpdateStructureRequest
 {
     [Required]
     [MaxLength(255)]
     public string Name { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(50)]
-    public string CodeStructure { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(255)]

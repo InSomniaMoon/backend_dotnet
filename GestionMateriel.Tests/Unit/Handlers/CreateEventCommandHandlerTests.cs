@@ -1,6 +1,6 @@
 using AutoMapper;
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Handlers.Commands;
 using GestionMateriel.Domain.Entities;
@@ -34,7 +34,7 @@ public class CreateEventCommandHandlerTests
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             StructureId = request.StructureId,
-            CreatedById = request.CreatedById,
+            UserId = request.CreatedById,
             Comment = request.Comment
         };
 

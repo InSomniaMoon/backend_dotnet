@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestionMateriel.Application.DTOs.Requests;
+namespace GestionMateriel.Application.DTOs.Requests.Categories;
 
-public class UpdateItemCategoryRequest
+public class CreateItemCategoryRequest
 {
     [Required]
     [MaxLength(255)]

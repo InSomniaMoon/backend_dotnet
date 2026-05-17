@@ -23,7 +23,7 @@ public class ResolveItemIssueCommandHandlerTests
             ItemId = 1,
             Status = IssueStatusEnum.Open,
             Value = "Fermeture cassée",
-            ReportedById = 2,
+            ReportedBy = 2,
             AffectedQuantity = 1
         };
 

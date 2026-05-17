@@ -1,6 +1,6 @@
 using AutoMapper;
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Handlers.Commands;
 using GestionMateriel.Domain.Entities;

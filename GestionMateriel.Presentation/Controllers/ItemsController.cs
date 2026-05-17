@@ -1,5 +1,5 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Items;
 using GestionMateriel.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

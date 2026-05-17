@@ -1,6 +1,6 @@
 using AutoMapper;
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Structures;
 using GestionMateriel.Application.Handlers.Commands;
 using GestionMateriel.Domain.Interfaces;
 using Moq;

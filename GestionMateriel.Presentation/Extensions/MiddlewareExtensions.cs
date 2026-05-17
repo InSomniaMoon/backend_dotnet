@@ -8,4 +8,9 @@ public static class MiddlewareExtensions
     {
         return app.UseMiddleware<GlobalExceptionMiddleware>();
     }
+
+    public static IApplicationBuilder UseTenantContextMiddleware(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<TenantContextMiddleware>();
+    }
 }

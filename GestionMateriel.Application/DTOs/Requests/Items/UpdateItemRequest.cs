@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestionMateriel.Application.DTOs.Requests;
+namespace GestionMateriel.Application.DTOs.Requests.Items;
 
-public class CreateItemRequest
+public class UpdateItemRequest
 {
     [Required]
     [MaxLength(255)]
@@ -17,7 +17,7 @@ public class CreateItemRequest
     [Range(1, int.MaxValue)]
     public int StructureId { get; set; }
 
-    public bool Usable { get; set; } = true;
+    public bool Usable { get; set; }
 
     [Range(0, int.MaxValue)]
     public int Stock { get; set; }

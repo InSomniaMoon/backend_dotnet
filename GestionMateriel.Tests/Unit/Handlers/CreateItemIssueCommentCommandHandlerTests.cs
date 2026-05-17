@@ -1,6 +1,6 @@
 using AutoMapper;
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Handlers.Commands;
 using GestionMateriel.Domain.Entities;
@@ -37,7 +37,7 @@ public class CreateItemIssueCommentCommandHandlerTests
         var commentRepoMock = new Mock<IItemIssueCommentRepository>();
         var mapperMock = new Mock<IMapper>();
 
-        issueRepoMock.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(new ItemIssue { Id = 5, ItemId = 1, Value = "x", ReportedById = 1, AffectedQuantity = 1 });
+        issueRepoMock.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(new ItemIssue { Id = 5, ItemId = 1, Value = "x", ReportedBy = 1, AffectedQuantity = 1 });
 
         var comment = new ItemIssueComment { Id = 3, Comment = "OK", UserId = 1 };
 

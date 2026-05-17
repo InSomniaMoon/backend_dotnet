@@ -1,5 +1,5 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -16,19 +16,15 @@ public class EventsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEvents([FromQuery] GetEventsRequest request, CancellationToken cancellationToken)
     {
-        if (request.ActualOnly)
-        {
-            var actual = await mediator.Send(new GetActualEventsQuery(), cancellationToken);
-            return Ok(actual);
-        }
-
-        if (request.StructureId is null)
-        {
-            return BadRequest(new { message = "structureId is required when actualOnly is false." });
-        }
-
-        var events = await mediator.Send(new GetEventsByStructureQuery(request.StructureId.Value), cancellationToken);
+        var events = await mediator.Send(new GetEventsByStructureQuery(request.StructureId ?? 0), cancellationToken);
         return Ok(events);
+    }
+
+    [HttpGet("actual")]
+    public async Task<IActionResult> GetActualEvents(CancellationToken cancellationToken)
+    {
+        var actual = await mediator.Send(new GetActualEventsQuery(), cancellationToken);
+        return Ok(actual);
     }
 
     [HttpGet("{id:int}")]

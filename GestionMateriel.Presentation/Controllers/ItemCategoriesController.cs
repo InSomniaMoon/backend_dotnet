@@ -1,5 +1,5 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +9,7 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/item-categories")]
+[Route("api/items/categories")]
 public class ItemCategoriesController(IMediator mediator) : ControllerBase
 {
     [HttpGet]

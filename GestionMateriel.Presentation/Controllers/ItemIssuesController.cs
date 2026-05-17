@@ -1,5 +1,5 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,17 +9,9 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/item-issues")]
+[Route("api/issues")]
 public class ItemIssuesController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("open")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetOpenIssues(CancellationToken cancellationToken)
-    {
-        var result = await mediator.Send(new GetOpenItemIssuesQuery(), cancellationToken);
-        return Ok(result);
-    }
-
     [HttpGet("by-item/{itemId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetIssuesByItem([FromRoute] int itemId, CancellationToken cancellationToken)

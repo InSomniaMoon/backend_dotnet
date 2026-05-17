@@ -20,10 +20,10 @@ public class User : BaseEntity
     public RoleEnum Role { get; set; } = RoleEnum.User;
 
     // Navigation properties
-    public ICollection<UserStructure> UserStructures { get; set; } = [];
-    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
-    public ICollection<ItemIssue> ReportedIssues { get; set; } = [];
-    public ICollection<ItemIssueComment> Comments { get; set; } = [];
-    public ICollection<Event> CreatedEvents { get; set; } = [];
-    public ICollection<FeatureClick> FeatureClicks { get; set; } = [];
+    public virtual ICollection<UserStructure> UserStructures { get; set; } = [];
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public virtual ICollection<ItemIssue> ReportedIssues { get; set; } = [];
+    public virtual ICollection<ItemIssueComment> Comments { get; set; } = [];
+    public virtual ICollection<Event> CreatedEvents { get; set; } = [];
+    public virtual ICollection<FeatureClick> FeatureClicks { get; set; } = [];
 }

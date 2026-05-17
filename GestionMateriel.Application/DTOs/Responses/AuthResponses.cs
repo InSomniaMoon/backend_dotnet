@@ -12,8 +12,9 @@ public class UserResponse
 
 public class AuthResponse
 {
-    public string AccessToken { get; set; } = string.Empty;
+    public string Token { get; set; } = string.Empty;
     public string RefreshToken { get; set; } = string.Empty;
+    public ICollection<StructureWithRoleResponse> Structures { get; set; } = [];
     public DateTime ExpiresAtUtc { get; set; }
     public UserResponse User { get; set; } = new();
 }

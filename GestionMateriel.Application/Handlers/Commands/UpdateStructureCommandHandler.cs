@@ -17,7 +17,6 @@ public class UpdateStructureCommandHandler(IStructureRepository structureReposit
         }
 
         mapper.Map(command.Request, entity);
-        entity.UpdatedAt = DateTime.UtcNow;
         await structureRepository.UpdateAsync(entity);
         await structureRepository.SaveChangesAsync();
 

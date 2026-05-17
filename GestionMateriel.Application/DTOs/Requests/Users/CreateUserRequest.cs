@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestionMateriel.Application.DTOs.Requests;
+namespace GestionMateriel.Application.DTOs.Requests.Users;
 
 public class CreateUserRequest
 {

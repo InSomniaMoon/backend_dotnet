@@ -1,6 +1,6 @@
 using AutoMapper;
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Handlers.Commands;
 using GestionMateriel.Domain.Entities;
@@ -17,7 +17,7 @@ public class CreateItemCategoryCommandHandlerTests
         var repoMock = new Mock<IItemCategoryRepository>();
         var mapperMock = new Mock<IMapper>();
 
-        var request = new CreateItemCategoryRequest { Name = "Tentes", StructureId = 1, Identified = true };
+        var request = new CreateItemCategoryRequest { Name = "Tentes", Identified = true };
         var category = new ItemCategory { Id = 11, Name = "Tentes", StructureId = 1, Identified = true };
 
         mapperMock.Setup(m => m.Map<ItemCategory>(request)).Returns(category);

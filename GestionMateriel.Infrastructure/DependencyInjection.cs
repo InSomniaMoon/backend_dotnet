@@ -34,6 +34,7 @@ public static class DependencyInjection
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITenantProvider, TenantProvider>();
 
         return services;
     }
