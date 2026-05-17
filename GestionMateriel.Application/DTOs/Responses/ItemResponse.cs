@@ -11,4 +11,5 @@ public class ItemResponse
     public int Stock { get; set; }
     public DateTime? DateOfBuy { get; set; }
     public string? ImagePath { get; set; }
+    public ItemCategoryResponse Category { get; set; } = null!;
 }

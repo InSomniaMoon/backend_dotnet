@@ -3,4 +3,4 @@ using MediatR;
 
 namespace GestionMateriel.Application.Queries;
 
-public record GetItemCategoriesQuery(int StructureId) : IRequest<IEnumerable<ItemCategoryResponse>>;
+public record GetItemCategoriesQuery() : IRequest<IEnumerable<ItemCategoryResponse>>;

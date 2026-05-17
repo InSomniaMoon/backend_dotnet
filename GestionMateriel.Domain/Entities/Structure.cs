@@ -12,6 +12,7 @@ public class Structure : IStructureCodeScopedEntity
     [Column("name")]
     public string Name { get; set; } = string.Empty;
     [Column("code_structure")]
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     public string CodeStructure { get; set; } = string.Empty;
     [Column("nom_structure")]
     public string NomStructure { get; set; } = string.Empty;

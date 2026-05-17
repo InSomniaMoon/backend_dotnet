@@ -28,7 +28,7 @@ public class GetItemsQueryHandlerTests
 
         var handler = new GetItemsQueryHandler(repoMock.Object, mapperMock.Object);
 
-        var result = await handler.Handle(new GetItemsQuery(1, PageNumber: 2, PageSize: 2), CancellationToken.None);
+        var result = await handler.Handle(new GetItemsQuery(PageNumber: 2, PageSize: 2), CancellationToken.None);
 
         Assert.Equal(3, result.TotalCount);
         Assert.Equal(2, result.PageNumber);

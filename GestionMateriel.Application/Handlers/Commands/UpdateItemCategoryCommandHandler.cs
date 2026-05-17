@@ -17,7 +17,6 @@ public class UpdateItemCategoryCommandHandler(IItemCategoryRepository itemCatego
         }
 
         mapper.Map(command.Request, category);
-        category.UpdatedAt = DateTime.UtcNow;
 
         await itemCategoryRepository.UpdateAsync(category);
         await itemCategoryRepository.SaveChangesAsync();

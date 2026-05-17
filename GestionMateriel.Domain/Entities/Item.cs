@@ -20,8 +20,8 @@ public class Item : BaseEntity, IStructureCodeScopedEntity
     public int Stock { get; set; }
     [Column("date_of_buy")]
     public DateTime? DateOfBuy { get; set; }
-    [Column("image_path")]
-    public string? ImagePath { get; set; }
+    [Column("image")]
+    public string? Image { get; set; }
     [Column("code_structure")]
     public string? CodeStructure { get; set; }
 

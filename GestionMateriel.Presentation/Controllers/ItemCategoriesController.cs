@@ -16,7 +16,7 @@ public class ItemCategoriesController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCategories([FromQuery] GetItemCategoriesRequest request, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetItemCategoriesQuery(request.StructureId), cancellationToken);
+        var result = await mediator.Send(new GetItemCategoriesQuery(), cancellationToken);
         return Ok(result);
     }
 

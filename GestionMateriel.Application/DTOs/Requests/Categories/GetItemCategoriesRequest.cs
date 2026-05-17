@@ -2,9 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GestionMateriel.Application.DTOs.Requests.Categories;
 
-public class GetItemCategoriesRequest
+public class GetItemCategoriesRequest : PaginatedRequest
 {
-    [Required]
-    [Range(1, int.MaxValue)]
-    public int StructureId { get; set; }
 }

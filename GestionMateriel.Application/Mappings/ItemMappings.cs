@@ -17,7 +17,14 @@ public static class ItemMappings
             Usable = item.Usable,
             Stock = item.Stock,
             DateOfBuy = item.DateOfBuy,
-            ImagePath = item.ImagePath
+            ImagePath = item.Image,
+            Category = item.Category != null ? new ItemCategoryResponse
+            {
+                Id = item.Category.Id,
+                Name = item.Category.Name,
+                StructureId = item.Category.StructureId,
+                Identified = item.Category.Identified
+            } : null
         };
     }
 }

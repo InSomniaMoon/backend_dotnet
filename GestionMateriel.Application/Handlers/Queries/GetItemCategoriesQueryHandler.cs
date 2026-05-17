@@ -10,7 +10,7 @@ public class GetItemCategoriesQueryHandler(IItemCategoryRepository itemCategoryR
 {
     public async Task<IEnumerable<ItemCategoryResponse>> Handle(GetItemCategoriesQuery query, CancellationToken cancellationToken)
     {
-        var categories = await itemCategoryRepository.GetByStructureAsync(query.StructureId);
+        var categories = await itemCategoryRepository.GetByStructureAsync();
         return categories.Select(c => mapper.Map<ItemCategoryResponse>(c));
     }
 }

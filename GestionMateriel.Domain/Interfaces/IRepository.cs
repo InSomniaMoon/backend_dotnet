@@ -26,13 +26,13 @@ public interface IStructureRepository : IRepository<Structure>
 
 public interface IItemRepository : IRepository<Item>
 {
-    Task<IEnumerable<Item>> GetByStructureAsync(int structureId);
+    Task<IEnumerable<Item>> GetByStructureAsync();
     Task<IEnumerable<Item>> GetAvailableItemsAsync(int structureId);
 }
 
 public interface IItemCategoryRepository : IRepository<ItemCategory>
 {
-    Task<IEnumerable<ItemCategory>> GetByStructureAsync(int structureId);
+    Task<IEnumerable<ItemCategory>> GetByStructureAsync();
 }
 
 public interface IItemIssueRepository : IRepository<ItemIssue>

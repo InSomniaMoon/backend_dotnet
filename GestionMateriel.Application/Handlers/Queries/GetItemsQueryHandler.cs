@@ -11,12 +11,12 @@ public class GetItemsQueryHandler(IItemRepository itemRepository, IMapper mapper
 {
     public async Task<PaginatedResponse<ItemResponse>> Handle(GetItemsQuery request, CancellationToken cancellationToken)
     {
-        var items = (await itemRepository.GetByStructureAsync(request.StructureId)).ToList();
-        var totalCount = items.Count;
+        var items = await itemRepository.GetByStructureAsync();
+        var totalCount = items.Count();
 
         var pagedItems = items
-            .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
+            .Skip((request.Page - 1) * request.Size)
+            .Take(request.Size)
             .Select(item => mapper.Map<ItemResponse>(item))
             .ToList();
 
@@ -24,8 +24,8 @@ public class GetItemsQueryHandler(IItemRepository itemRepository, IMapper mapper
         {
             Data = pagedItems,
             TotalCount = totalCount,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize
+            Page = request.Page,
+            Size = request.Size
         };
     }
 }

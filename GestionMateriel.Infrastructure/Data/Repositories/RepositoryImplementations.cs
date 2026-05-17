@@ -76,11 +76,13 @@ public class UserRepository(GestionMaterielDbContext context) : Repository<User>
 
 public class ItemRepository(GestionMaterielDbContext context) : Repository<Item>(context), IItemRepository
 {
-    public async Task<IEnumerable<Item>> GetByStructureAsync(int structureId)
+    public async Task<IEnumerable<Item>> GetByStructureAsync()
     {
         return await Context.Items
+
             .AsNoTracking()
-            .Where(i => i.StructureId == structureId)
+            .Include(i => i.Category)
+            .Include(i => i.Issues.Where(ii => ii.Status == Domain.Enums.IssueStatusEnum.Open))
             .ToListAsync();
     }
 
@@ -95,11 +97,10 @@ public class ItemRepository(GestionMaterielDbContext context) : Repository<Item>
 
 public class ItemCategoryRepository(GestionMaterielDbContext context) : Repository<ItemCategory>(context), IItemCategoryRepository
 {
-    public async Task<IEnumerable<ItemCategory>> GetByStructureAsync(int structureId)
+    public async Task<IEnumerable<ItemCategory>> GetByStructureAsync()
     {
         return await Context.ItemCategories
             .AsNoTracking()
-            .Where(c => c.StructureId == structureId)
             .OrderBy(c => c.Name)
             .ToListAsync();
     }

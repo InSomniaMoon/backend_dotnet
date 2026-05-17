@@ -192,7 +192,7 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(i => i.Description)
             .HasMaxLength(1000);
 
-        builder.Property(i => i.ImagePath)
+        builder.Property(i => i.Image)
             .HasMaxLength(500);
 
         builder.Property(i => i.CodeStructure)

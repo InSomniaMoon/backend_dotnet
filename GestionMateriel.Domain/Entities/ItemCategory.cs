@@ -4,8 +4,10 @@ using GestionMateriel.Domain.Interfaces;
 namespace GestionMateriel.Domain.Entities;
 
 [Table("item_categories")]
-public class ItemCategory : BaseEntity, IStructureCodeScopedEntity
+public class ItemCategory : IStructureCodeScopedEntity
 {
+    [Column("id")]
+    public int Id { get; set; }
     [Column("name")]
     public string Name { get; set; } = string.Empty;
     [Column("structure_id")]

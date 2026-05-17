@@ -4,16 +4,16 @@ public class PaginatedResponse<T>
 {
     public IEnumerable<T> Data { get; set; } = [];
     public int TotalCount { get; set; }
-    public int PageNumber { get; set; }
-    public int PageSize { get; set; }
-    
-    public int TotalPages => (TotalCount + PageSize - 1) / PageSize;
+    public int Page { get; set; }
+    public int Size { get; set; }
+
+    public int TotalPages => (TotalCount + Size - 1) / Size;
 }
 
 public class PaginationFilter
 {
-    public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
+    public int Page { get; set; } = 1;
+    public int Size { get; set; } = 10;
 }
 
 public class ErrorResponse
