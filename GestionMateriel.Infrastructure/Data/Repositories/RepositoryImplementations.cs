@@ -83,6 +83,28 @@ public class ItemRepository(GestionMaterielDbContext context) : Repository<Item>
             .AsNoTracking()
             .Include(i => i.Category)
             .Include(i => i.Issues.Where(ii => ii.Status == Domain.Enums.IssueStatusEnum.Open))
+            // .Select(i => new()
+            // {
+            //     Id = i.Id,
+            //     Name = i.Name,
+            //     Description = i.Description,
+            //     CategoryId = i.CategoryId,
+            //     StructureId = i.StructureId,
+            //     Usable = i.Usable,
+            //     Stock = i.Stock,
+            //     DateOfBuy = i.DateOfBuy,
+            //     Image = i.Image,
+            //     CodeStructure = i.CodeStructure,
+            //     Category = i.Category != null ? new ItemCategory
+            //     {
+            //         Id = i.Category.Id,
+            //         Name = i.Category.Name,
+            //         StructureId = i.Category.StructureId,
+            //         Identified = i.Category.Identified
+            //     } : null,
+
+            //     // openIssuesCount = i.Issues.Count
+            // })
             .ToListAsync();
     }
 

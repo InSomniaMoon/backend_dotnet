@@ -9,6 +9,8 @@ public class ItemResponse
     public int StructureId { get; set; }
     public bool Usable { get; set; }
     public int Stock { get; set; }
+    public int UsableStock { get; set; }
+    public string State { get; set; } = string.Empty;
     public DateTime? DateOfBuy { get; set; }
     public string? ImagePath { get; set; }
     public ItemCategoryResponse Category { get; set; } = null!;

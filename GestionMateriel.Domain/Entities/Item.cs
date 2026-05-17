@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using GestionMateriel.Domain.Enums;
 using GestionMateriel.Domain.Interfaces;
 
 namespace GestionMateriel.Domain.Entities;
@@ -22,6 +23,10 @@ public class Item : BaseEntity, IStructureCodeScopedEntity
     public DateTime? DateOfBuy { get; set; }
     [Column("image")]
     public string? Image { get; set; }
+    [Column("state")]
+    public ItemState State { get; set; } = ItemState.OK;
+    [Column("usable_stock")]
+    public int UsableStock { get; set; } = 0;
     [Column("code_structure")]
     public string? CodeStructure { get; set; }
 

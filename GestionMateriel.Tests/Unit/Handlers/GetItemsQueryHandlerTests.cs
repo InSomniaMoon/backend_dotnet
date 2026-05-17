@@ -22,16 +22,16 @@ public class GetItemsQueryHandlerTests
             new() { Id = 3, Name = "C", CategoryId = 1, StructureId = 1 }
         };
 
-        repoMock.Setup(r => r.GetByStructureAsync(1)).ReturnsAsync(items);
+        repoMock.Setup(r => r.GetByStructureAsync()).ReturnsAsync(items);
         mapperMock.Setup(m => m.Map<GestionMateriel.Application.DTOs.Responses.ItemResponse>(It.IsAny<Item>()))
             .Returns<Item>(i => new GestionMateriel.Application.DTOs.Responses.ItemResponse { Id = i.Id, Name = i.Name });
 
         var handler = new GetItemsQueryHandler(repoMock.Object, mapperMock.Object);
 
-        var result = await handler.Handle(new GetItemsQuery(PageNumber: 2, PageSize: 2), CancellationToken.None);
+        var result = await handler.Handle(new GetItemsQuery(Page: 2, Size: 2), CancellationToken.None);
 
         Assert.Equal(3, result.TotalCount);
-        Assert.Equal(2, result.PageNumber);
+        Assert.Equal(2, result.Page);
         Assert.Single(result.Data);
         Assert.Equal(3, result.Data.First().Id);
     }

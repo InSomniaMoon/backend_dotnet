@@ -199,6 +199,18 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
             .HasMaxLength(50)
             .IsUnicode(false);
 
+        builder.Property(i => i.State)
+            .HasConversion(
+                v => v.Value,
+                v => ItemState.FromString(v)
+            )
+            .HasDefaultValue(ItemState.OK)
+            .HasMaxLength(3)
+            .IsUnicode(false);
+
+        builder.Property(i => i.UsableStock)
+            .HasDefaultValue(0);
+
         builder.HasOne(i => i.Category)
             .WithMany(c => c.Items)
             .HasForeignKey(i => i.CategoryId)
@@ -208,6 +220,7 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
             .WithMany(s => s.Items)
             .HasForeignKey(i => i.StructureId)
             .OnDelete(DeleteBehavior.Cascade);
+
     }
 }
 
