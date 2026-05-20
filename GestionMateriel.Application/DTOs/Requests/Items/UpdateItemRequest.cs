@@ -13,10 +13,6 @@ public class UpdateItemRequest
 
     [Range(1, int.MaxValue)]
     public int CategoryId { get; set; }
-
-    [Range(1, int.MaxValue)]
-    public int StructureId { get; set; }
-
     public bool Usable { get; set; }
 
     [Range(0, int.MaxValue)]

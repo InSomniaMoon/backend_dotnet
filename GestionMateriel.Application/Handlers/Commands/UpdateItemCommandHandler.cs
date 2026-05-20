@@ -17,6 +17,7 @@ public class UpdateItemCommandHandler(IItemRepository itemRepository, IMapper ma
         }
 
         mapper.Map(command.Request, item);
+
         item.UpdatedAt = DateTime.UtcNow;
 
         await itemRepository.UpdateAsync(item);

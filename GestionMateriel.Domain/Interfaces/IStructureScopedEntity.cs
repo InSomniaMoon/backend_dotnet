@@ -2,5 +2,5 @@ namespace GestionMateriel.Domain.Interfaces;
 
 public interface IStructureCodeScopedEntity
 {
-    string? CodeStructure { get; set; }
+    public string? CodeStructure { get; set; }
 }

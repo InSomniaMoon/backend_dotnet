@@ -4,7 +4,7 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Queries;
+namespace GestionMateriel.Application.Handlers.Queries.Items.Issues;
 
 public class GetItemIssueCommentsQueryHandler(IItemIssueCommentRepository itemIssueCommentRepository, IMapper mapper) : IRequestHandler<GetItemIssueCommentsQuery, IEnumerable<ItemIssueCommentResponse>>
 {

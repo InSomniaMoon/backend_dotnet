@@ -4,7 +4,7 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Queries;
+namespace GestionMateriel.Application.Handlers.Queries.Events;
 
 public class GetEventByIdQueryHandler(IEventRepository eventRepository, IMapper mapper) : IRequestHandler<GetEventByIdQuery, EventResponse?>
 {

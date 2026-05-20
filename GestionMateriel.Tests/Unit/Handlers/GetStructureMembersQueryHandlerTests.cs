@@ -1,5 +1,5 @@
 using AutoMapper;
-using GestionMateriel.Application.Handlers.Queries;
+using GestionMateriel.Application.Handlers.Queries.Structures;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using Moq;
@@ -16,7 +16,7 @@ public class GetStructureMembersQueryHandlerTests
 
         structureRepoMock
             .Setup(r => r.GetWithMembersAsync(999))
-            .ReturnsAsync((GestionMateriel.Domain.Entities.Structure?)null);
+            .ReturnsAsync((Domain.Entities.Structure?)null);
 
         var handler = new GetStructureMembersQueryHandler(structureRepoMock.Object, mapperMock.Object);
 

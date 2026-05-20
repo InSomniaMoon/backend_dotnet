@@ -58,14 +58,46 @@ public class GestionMaterielDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
+        NormalizeTrackedDateTimesToUtc();
         ApplyTenantScopeOnAddedEntities();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
+        NormalizeTrackedDateTimesToUtc();
         ApplyTenantScopeOnAddedEntities();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void NormalizeTrackedDateTimesToUtc()
+    {
+        foreach (var entry in ChangeTracker.Entries()
+                     .Where(e => e.State is EntityState.Added or EntityState.Modified))
+        {
+            foreach (var property in entry.Properties)
+            {
+                if (property.Metadata.ClrType == typeof(DateTime) && property.CurrentValue is DateTime dt)
+                {
+                    property.CurrentValue = dt.Kind switch
+                    {
+                        DateTimeKind.Utc => dt,
+                        DateTimeKind.Local => dt.ToUniversalTime(),
+                        _ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
+                    };
+                }
+
+                if (property.Metadata.ClrType == typeof(DateTime?) && property.CurrentValue is DateTime nullableDt)
+                {
+                    property.CurrentValue = nullableDt.Kind switch
+                    {
+                        DateTimeKind.Utc => nullableDt,
+                        DateTimeKind.Local => nullableDt.ToUniversalTime(),
+                        _ => DateTime.SpecifyKind(nullableDt, DateTimeKind.Utc)
+                    };
+                }
+            }
+        }
     }
 
     private void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
@@ -112,20 +144,20 @@ public class GestionMaterielDbContext(
             .Distinct()
             .ToList();
 
-        var structureCode = _jwtSettings.Structure.Role;
+        var structureCode = TenantStructureCode;
 
-        foreach (var entry in scopedEntries)
-        {
-            if (entry.Entity is IStructureCodeScopedEntity structureCodeScopedEntity)
-            {
-                structureCodeScopedEntity.CodeStructure = structureCode;
-            }
+        // foreach (var entry in scopedEntries)
+        // {
+        //     if (entry.Entity is IStructureCodeScopedEntity structureCodeScopedEntity)
+        //     {
+        //         structureCodeScopedEntity.CodeStructure = structureCode;
+        //     }
 
-            if (HasTenantMask && !structureCode.StartsWith(TenantMask, StringComparison.Ordinal))
-            {
-                throw new UnauthorizedAccessException("La structure demandee n'appartient pas au tenant courant.");
-            }
-        }
+        //     if (HasTenantMask && !(structureCode?.StartsWith(TenantMask, StringComparison.Ordinal) ?? false))
+        //     {
+        //         throw new UnauthorizedAccessException("La structure demandée n'appartient pas au tenant courant.");
+        //     }
+        // }
 
         foreach (var entry in ChangeTracker.Entries<IStructureCodeScopedEntity>()
                      .Where(e => e.State is EntityState.Added or EntityState.Modified))

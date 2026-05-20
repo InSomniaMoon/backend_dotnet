@@ -4,7 +4,7 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Queries;
+namespace GestionMateriel.Application.Handlers.Queries.Items.Categories;
 
 public class GetItemCategoriesQueryHandler(IItemCategoryRepository itemCategoryRepository, IMapper mapper) : IRequestHandler<GetItemCategoriesQuery, IEnumerable<ItemCategoryResponse>>
 {

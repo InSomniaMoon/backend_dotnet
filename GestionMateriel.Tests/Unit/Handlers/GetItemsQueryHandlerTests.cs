@@ -1,5 +1,5 @@
 using AutoMapper;
-using GestionMateriel.Application.Handlers.Queries;
+using GestionMateriel.Application.Handlers.Queries.Items;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Interfaces;
@@ -22,9 +22,9 @@ public class GetItemsQueryHandlerTests
             new() { Id = 3, Name = "C", CategoryId = 1, StructureId = 1 }
         };
 
-        repoMock.Setup(r => r.GetByStructureAsync()).ReturnsAsync(items);
-        mapperMock.Setup(m => m.Map<GestionMateriel.Application.DTOs.Responses.ItemResponse>(It.IsAny<Item>()))
-            .Returns<Item>(i => new GestionMateriel.Application.DTOs.Responses.ItemResponse { Id = i.Id, Name = i.Name });
+        repoMock.Setup(r => r.GetByStructureAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((items, 3));
+        mapperMock.Setup(m => m.Map<Application.DTOs.Responses.ItemResponse>(It.IsAny<Item>()))
+            .Returns<Item>(i => new Application.DTOs.Responses.ItemResponse { Id = i.Id, Name = i.Name });
 
         var handler = new GetItemsQueryHandler(repoMock.Object, mapperMock.Object);
 

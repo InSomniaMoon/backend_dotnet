@@ -5,7 +5,7 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Queries;
+namespace GestionMateriel.Application.Handlers.Queries.Items;
 
 public class GetItemsQueryHandler(IItemRepository itemRepository, IMapper mapper) : IRequestHandler<GetItemsQuery, PaginatedResponse<ItemResponse>>
 {

@@ -4,7 +4,7 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Queries;
+namespace GestionMateriel.Application.Handlers.Queries.Items.Issues;
 
 public class GetOpenItemIssuesQueryHandler(IItemIssueRepository itemIssueRepository, IMapper mapper) : IRequestHandler<GetOpenItemIssuesQuery, IEnumerable<ItemIssueResponse>>
 {

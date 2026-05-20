@@ -4,7 +4,7 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Queries;
+namespace GestionMateriel.Application.Handlers.Queries.Structures;
 
 public class GetStructuresQueryHandler(IStructureRepository structureRepository, IMapper mapper) : IRequestHandler<GetStructuresQuery, IEnumerable<StructureResponse>>
 {
