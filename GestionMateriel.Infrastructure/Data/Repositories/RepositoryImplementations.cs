@@ -76,36 +76,42 @@ public class UserRepository(GestionMaterielDbContext context) : Repository<User>
 
 public class ItemRepository(GestionMaterielDbContext context) : Repository<Item>(context), IItemRepository
 {
-    public async Task<IEnumerable<Item>> GetByStructureAsync()
+    public async Task<(IEnumerable<Item>, int)> GetByStructureAsync(
+        int Page, int Size, string? Q, string? OrderBy, string? OrderDir, CancellationToken cancellationToken
+    )
     {
-        return await Context.Items
+        var query = Context.Items
 
             .AsNoTracking()
             .Include(i => i.Category)
             .Include(i => i.Issues.Where(ii => ii.Status == Domain.Enums.IssueStatusEnum.Open))
-            // .Select(i => new()
-            // {
-            //     Id = i.Id,
-            //     Name = i.Name,
-            //     Description = i.Description,
-            //     CategoryId = i.CategoryId,
-            //     StructureId = i.StructureId,
-            //     Usable = i.Usable,
-            //     Stock = i.Stock,
-            //     DateOfBuy = i.DateOfBuy,
-            //     Image = i.Image,
-            //     CodeStructure = i.CodeStructure,
-            //     Category = i.Category != null ? new ItemCategory
-            //     {
-            //         Id = i.Category.Id,
-            //         Name = i.Category.Name,
-            //         StructureId = i.Category.StructureId,
-            //         Identified = i.Category.Identified
-            //     } : null,
+            .Where(i => string.IsNullOrEmpty(Q) || i.Name.Contains(Q, StringComparison.OrdinalIgnoreCase));
 
-            //     // openIssuesCount = i.Issues.Count
-            // })
-            .ToListAsync();
+        var total = await query.CountAsync(cancellationToken);
+        if (OrderBy is not null)
+        {
+            query = OrderBy switch
+            {
+                "name" when OrderDir == "desc" => query.OrderByDescending(i => i.Name),
+                "name" => query.OrderBy(i => i.Name),
+                "categoryId" when OrderDir == "desc" => query.OrderByDescending(i => i.CategoryId),
+                "categoryId" => query.OrderBy(i => i.CategoryId),
+                "state" when OrderDir == "desc" => query.OrderByDescending(i => i.State),
+                "state" => query.OrderBy(i => i.State),
+                "id" when OrderDir == "desc" => query.OrderByDescending(i => i.Id),
+                "id" => query.OrderBy(i => i.Id),
+                _ when OrderDir == "desc" => query.OrderByDescending(i => i.Id),
+                _ => query.OrderBy(i => i.Id)
+            };
+        }
+        else
+        {
+            query = query.OrderBy(i => i.Id);
+        }
+        return (await query
+        .Skip((Page - 1) * Size)
+        .Take(Size)
+        .ToListAsync(cancellationToken: cancellationToken), total);
     }
 
     public async Task<IEnumerable<Item>> GetAvailableItemsAsync(int structureId)

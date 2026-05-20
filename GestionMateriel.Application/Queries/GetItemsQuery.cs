@@ -8,7 +8,7 @@ public record GetItemsQuery(
     int Page = 1,
     int Size = 20,
     string? Q = null,
-    string? SortDir = "asc",
-    string? SortBy = null
+    string? OrderDir = "asc",
+    string? OrderBy = null
     )
     : IRequest<PaginatedResponse<ItemResponse>>;

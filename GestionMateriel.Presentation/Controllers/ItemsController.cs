@@ -16,7 +16,7 @@ public class ItemsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetItems([FromQuery] GetPaginatedItemsRequest request, CancellationToken cancellationToken)
     {
-        var query = new GetItemsQuery(request.Page, request.Size);
+        var query = new GetItemsQuery(request.Page, request.Size, request.Q, request.OrderDir, request.OrderBy);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(result);
     }

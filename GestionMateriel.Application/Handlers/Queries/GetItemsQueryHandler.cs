@@ -11,13 +11,10 @@ public class GetItemsQueryHandler(IItemRepository itemRepository, IMapper mapper
 {
     public async Task<PaginatedResponse<ItemResponse>> Handle(GetItemsQuery request, CancellationToken cancellationToken)
     {
-        var items = await itemRepository.GetByStructureAsync();
-        var totalCount = items.Count();
+        var (items, totalCount) = await itemRepository.GetByStructureAsync(request.Page, request.Size, request.Q, request.OrderBy, request.OrderDir, cancellationToken);
 
         var pagedItems = items
-            .Skip((request.Page - 1) * request.Size)
-            .Take(request.Size)
-            .Select(item => mapper.Map<ItemResponse>(item))
+            .Select(mapper.Map<ItemResponse>)
             .ToList();
 
         return new PaginatedResponse<ItemResponse>

@@ -24,7 +24,7 @@ public class CreateUserCommandHandlerTests
             LastName = "Lovelace",
             Email = "ada@example.com",
             Password = "password123",
-            Role = "Admin"
+            Role = "admin"
         };
 
         userRepoMock

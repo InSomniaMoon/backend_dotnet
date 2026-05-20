@@ -12,9 +12,9 @@ public class PaginatedRequest
     public int Size { get; set; } = 50;
     public string? Q { get; set; }
 
-    [RegularExpression("asc|desc|null", ErrorMessage = "SortDir must be either 'asc', 'desc' or 'null'.")]
-    public string? SortDir { get; set; } = "asc";
-    public string? SortBy { get; set; }
+    [RegularExpression("asc|desc|null", ErrorMessage = "OrderDir must be either 'asc', 'desc' or 'null'.")]
+    public string? OrderDir { get; set; } = "asc";
+    public string? OrderBy { get; set; }
 
 
 }

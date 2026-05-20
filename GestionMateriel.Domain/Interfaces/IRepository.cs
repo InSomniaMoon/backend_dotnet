@@ -26,7 +26,7 @@ public interface IStructureRepository : IRepository<Structure>
 
 public interface IItemRepository : IRepository<Item>
 {
-    Task<IEnumerable<Item>> GetByStructureAsync();
+    Task<(IEnumerable<Item>, int)> GetByStructureAsync(int Page, int Size, string? Q, string? OrderBy, string? OrderDir, CancellationToken cancellationToken);
     Task<IEnumerable<Item>> GetAvailableItemsAsync(int structureId);
 }
 
