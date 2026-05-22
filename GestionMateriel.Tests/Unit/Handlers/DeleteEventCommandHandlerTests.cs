@@ -1,5 +1,5 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.Handlers.Commands;
+using GestionMateriel.Application.Handlers.Commands.Events;
 using GestionMateriel.Domain.Interfaces;
 using Moq;
 

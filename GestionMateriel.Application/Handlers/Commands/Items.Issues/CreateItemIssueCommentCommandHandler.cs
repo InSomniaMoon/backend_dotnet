@@ -5,7 +5,7 @@ using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Items.Issues;
 
 public class CreateItemIssueCommentCommandHandler(
     IItemIssueRepository itemIssueRepository,

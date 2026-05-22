@@ -2,7 +2,7 @@ using AutoMapper;
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Users;
 using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Commands;
+using GestionMateriel.Application.Handlers.Commands.Users;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Domain.Interfaces;

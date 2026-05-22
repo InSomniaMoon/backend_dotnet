@@ -5,7 +5,7 @@ using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Items.Categories;
 
 public class CreateItemCategoryCommandHandler(IItemCategoryRepository itemCategoryRepository, IMapper mapper) : IRequestHandler<CreateItemCategoryCommand, ItemCategoryResponse>
 {

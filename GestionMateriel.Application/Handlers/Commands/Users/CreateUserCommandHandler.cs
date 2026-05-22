@@ -6,7 +6,7 @@ using GestionMateriel.Domain.Enums;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Users;
 
 public class CreateUserCommandHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<CreateUserCommand, UserResponse>
 {

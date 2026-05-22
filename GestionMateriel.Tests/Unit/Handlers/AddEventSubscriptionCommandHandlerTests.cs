@@ -2,7 +2,7 @@ using AutoMapper;
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Commands;
+using GestionMateriel.Application.Handlers.Commands.Events;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Interfaces;
 using Moq;

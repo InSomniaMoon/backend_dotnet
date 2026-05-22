@@ -4,7 +4,7 @@ using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Events;
 
 public class UpdateEventCommandHandler(IEventRepository eventRepository, IMapper mapper) : IRequestHandler<UpdateEventCommand, EventResponse?>
 {

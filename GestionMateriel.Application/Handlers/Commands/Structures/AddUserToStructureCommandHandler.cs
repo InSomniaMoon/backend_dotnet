@@ -6,7 +6,7 @@ using GestionMateriel.Domain.Enums;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Structures;
 
 public class AddUserToStructureCommandHandler(
     IUserRepository userRepository,

@@ -4,7 +4,7 @@ using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Items.Categories;
 
 public class UpdateItemCategoryCommandHandler(IItemCategoryRepository itemCategoryRepository, IMapper mapper) : IRequestHandler<UpdateItemCategoryCommand, ItemCategoryResponse?>
 {

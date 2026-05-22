@@ -4,7 +4,7 @@ using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Structures;
 
 public class UpdateStructureCommandHandler(IStructureRepository structureRepository, IMapper mapper) : IRequestHandler<UpdateStructureCommand, StructureResponse?>
 {

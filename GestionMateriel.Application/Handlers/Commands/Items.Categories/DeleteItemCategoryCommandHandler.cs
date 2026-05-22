@@ -2,7 +2,7 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Items.Categories;
 
 public class DeleteItemCategoryCommandHandler(IItemCategoryRepository itemCategoryRepository) : IRequestHandler<DeleteItemCategoryCommand, bool>
 {

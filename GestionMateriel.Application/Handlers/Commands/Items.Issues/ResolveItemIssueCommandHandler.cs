@@ -5,7 +5,7 @@ using GestionMateriel.Domain.Enums;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Items.Issues;
 
 public class ResolveItemIssueCommandHandler(IItemIssueRepository itemIssueRepository, IMapper mapper) : IRequestHandler<ResolveItemIssueCommand, ItemIssueResponse?>
 {

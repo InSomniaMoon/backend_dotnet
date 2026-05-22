@@ -5,7 +5,7 @@ using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Interfaces;
 using MediatR;
 
-namespace GestionMateriel.Application.Handlers.Commands;
+namespace GestionMateriel.Application.Handlers.Commands.Structures;
 
 public class CreateStructureCommandHandler(IStructureRepository structureRepository, IMapper mapper) : IRequestHandler<CreateStructureCommand, StructureResponse>
 {
