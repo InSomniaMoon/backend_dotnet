@@ -12,28 +12,11 @@ namespace GestionMateriel.Presentation.Controllers;
 [Authorize]
 [Route("api/issues")]
 public class ItemIssuesController(
-    IRequestHandler<GetItemIssuesByItemQuery, IEnumerable<ItemIssueResponse>> getByItem,
-    IRequestHandler<CreateItemIssueCommand, ItemIssueResponse> create,
     IRequestHandler<ResolveItemIssueCommand, ItemIssueResponse?> resolve,
     IRequestHandler<GetItemIssueCommentsQuery, IEnumerable<ItemIssueCommentResponse>> getComments,
     IRequestHandler<CreateItemIssueCommentCommand, ItemIssueCommentResponse?> createComment
 ) : ControllerBase
 {
-    [HttpGet("by-item/{itemId:int}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetIssuesByItem([FromRoute] int itemId, CancellationToken cancellationToken)
-    {
-        var result = await getByItem.Handle(new GetItemIssuesByItemQuery(itemId), cancellationToken);
-        return Ok(result);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateIssue([FromBody] CreateItemIssueRequest request, CancellationToken cancellationToken)
-    {
-        var result = await create.Handle(new CreateItemIssueCommand(request), cancellationToken);
-        return CreatedAtAction(nameof(GetIssuesByItem), new { itemId = result.ItemId }, result);
-    }
 
     [HttpPatch("{id:int}/resolve")]
     [ProducesResponseType(StatusCodes.Status200OK)]

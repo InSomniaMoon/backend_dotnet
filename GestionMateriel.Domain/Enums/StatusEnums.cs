@@ -2,10 +2,12 @@ namespace GestionMateriel.Domain.Enums;
 
 public sealed class IssueStatusEnum
 {
-    public static readonly IssueStatusEnum Open = new("Open");
-    public static readonly IssueStatusEnum Resolved = new("Resolved");
+    public static readonly IssueStatusEnum Open = new("open");
+    public static readonly IssueStatusEnum InProgress = new("in_progress");
+    public static readonly IssueStatusEnum Resolved = new("resolved");
+    public static readonly IssueStatusEnum Closed = new("closed");
 
-    public static IEnumerable<IssueStatusEnum> List() => [Open, Resolved];
+    public static IEnumerable<IssueStatusEnum> List() => [Open, InProgress, Resolved, Closed];
 
     public string Value { get; }
 

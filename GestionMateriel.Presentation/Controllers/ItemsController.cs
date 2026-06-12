@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests.Items;
+using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Queries;
@@ -63,5 +65,17 @@ public class ItemsController(
     {
         var deleted = await delete.Handle(new DeleteItemCommand(id), cancellationToken);
         return deleted ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{id:int}/issues")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateItemIssue([FromRoute] int id, [FromBody] CreateItemIssueRequest request, IRequestHandler<CreateItemIssueCommand, ItemIssueResponse?> create, CancellationToken cancellationToken)
+    {
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var result = await create.Handle(new CreateItemIssueCommand(id, int.Parse(userId!), request), cancellationToken);
+        return result is null ? NotFound() : CreatedAtAction(nameof(Admin.ItemsController.GetItemIssues), new { id }, result);
     }
 }
