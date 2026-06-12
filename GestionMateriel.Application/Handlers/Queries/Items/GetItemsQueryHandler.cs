@@ -3,7 +3,7 @@ using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Interfaces;
-using MediatR;
+using GestionMateriel.Application.Messaging;
 
 namespace GestionMateriel.Application.Handlers.Queries.Items;
 

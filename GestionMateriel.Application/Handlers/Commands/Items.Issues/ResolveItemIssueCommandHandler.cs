@@ -3,7 +3,7 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Domain.Interfaces;
-using MediatR;
+using GestionMateriel.Application.Messaging;
 
 namespace GestionMateriel.Application.Handlers.Commands.Items.Issues;
 

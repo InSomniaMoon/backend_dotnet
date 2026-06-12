@@ -1,6 +1,5 @@
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Responses;
-using MediatR;
 
 namespace GestionMateriel.Application.Queries;
 
@@ -10,5 +9,4 @@ public record GetItemsQuery(
     string? Q = null,
     string? OrderDir = "asc",
     string? OrderBy = null
-    )
-    : IRequest<PaginatedResponse<ItemResponse>>;
+);

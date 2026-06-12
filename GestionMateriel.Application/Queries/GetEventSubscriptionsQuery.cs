@@ -1,6 +1,5 @@
 using GestionMateriel.Application.DTOs.Responses;
-using MediatR;
 
 namespace GestionMateriel.Application.Queries;
 
-public record GetEventSubscriptionsQuery(int EventId) : IRequest<IEnumerable<EventSubscriptionResponse>>;
+public record GetEventSubscriptionsQuery(int EventId);

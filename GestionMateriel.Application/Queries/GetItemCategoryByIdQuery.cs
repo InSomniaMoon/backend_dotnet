@@ -1,6 +1,5 @@
 using GestionMateriel.Application.DTOs.Responses;
-using MediatR;
 
 namespace GestionMateriel.Application.Queries;
 
-public record GetItemCategoryByIdQuery(int Id) : IRequest<ItemCategoryResponse?>;
+public record GetItemCategoryByIdQuery(int Id);
