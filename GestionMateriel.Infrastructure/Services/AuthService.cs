@@ -4,14 +4,14 @@ using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Services;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
-using GestionMateriel.Domain.Interfaces;
+using GestionMateriel.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace GestionMateriel.Infrastructure.Services;
 
 public class AuthService(
-    IUserRepository userRepository,
-    IRefreshTokenRepository refreshTokenRepository,
+    GestionMaterielDbContext db,
     IJwtTokenService jwtTokenService,
     IOptions<JwtSettings> jwtOptions) : IAuthService
 {
@@ -19,26 +19,23 @@ public class AuthService(
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByEmailAsync(request.Email);
-        if (user is null)
-        {
-            return null;
-        }
+        var user = await db.Users
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(u => u.UserStructures)
+                .ThenInclude(us => us.Structure)
+            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-        {
+        if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             return null;
-        }
 
-        return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure);
+        return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure, cancellationToken);
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        if (await userRepository.IsEmailTakenAsync(request.Email))
-        {
+        if (await db.Users.AnyAsync(u => u.Email == request.Email, cancellationToken))
             throw new InvalidOperationException("An account already exists with this email.");
-        }
 
         var user = new User
         {
@@ -50,44 +47,44 @@ public class AuthService(
             Role = RoleEnum.User
         };
 
-        await userRepository.AddAsync(user);
-        await userRepository.SaveChangesAsync();
+        await db.Users.AddAsync(user, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
 
-        return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure);
+        return await BuildAuthResponseAsync(user, null, cancellationToken);
     }
 
     public async Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
-        var storedRefreshToken = await refreshTokenRepository.GetByTokenAsync(request.RefreshToken);
-        if (storedRefreshToken is null || storedRefreshToken.ExpiresAt <= DateTime.UtcNow)
-        {
+        var storedToken = await db.RefreshTokens
+            .Include(rt => rt.User)
+                .ThenInclude(u => u.UserStructures)
+                .ThenInclude(us => us.Structure)
+            .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken, cancellationToken);
+
+        if (storedToken is null || storedToken.ExpiresAt <= DateTime.UtcNow)
             return null;
-        }
 
-        var user = storedRefreshToken.User;
+        var user = storedToken.User;
+        var structure = user.UserStructures.FirstOrDefault()?.Structure;
 
-        var userstructure = user.UserStructures.FirstOrDefault()?.Structure;
+        db.RefreshTokens.Remove(storedToken);
+        await db.SaveChangesAsync(cancellationToken);
 
-        await refreshTokenRepository.DeleteAsync(storedRefreshToken.Id);
-        await refreshTokenRepository.SaveChangesAsync();
-
-        return await BuildAuthResponseAsync(user, userstructure);
+        return await BuildAuthResponseAsync(user, structure, cancellationToken);
     }
 
-    private async Task<AuthResponse> BuildAuthResponseAsync(User user, Structure? selectedStructure = null)
+    private async Task<AuthResponse> BuildAuthResponseAsync(User user, Structure? selectedStructure, CancellationToken cancellationToken = default)
     {
         var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user, selectedStructure);
         var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
 
-        var refreshToken = new RefreshToken
+        await db.RefreshTokens.AddAsync(new RefreshToken
         {
             Token = refreshTokenValue,
             UserId = user.Id,
             ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays)
-        };
-
-        await refreshTokenRepository.AddAsync(refreshToken);
-        await refreshTokenRepository.SaveChangesAsync();
+        }, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
 
         return new AuthResponse
         {

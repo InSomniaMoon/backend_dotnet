@@ -1,30 +1,22 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Structures;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Domain.Enums;
+using GestionMateriel.Infrastructure.Handlers.Queries.Structures;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetStructureByIdQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Structure_When_Found()
+    public async Task Handle_Should_Return_Structure_When_Found()
     {
-        var repoMock = new Mock<IStructureRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        var structure = new Structure { Id = 2, Name = "Groupe B", CodeStructure = "GB", NomStructure = "Groupe B", Type = GestionMateriel.Domain.Enums.StructureTypeEnum.Groupe };
-        repoMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(structure);
-        mapperMock.Setup(m => m.Map<StructureResponse>(structure)).Returns(new StructureResponse { Id = 2, Name = "Groupe B" });
-
-        var handler = new GetStructureByIdQueryHandler(repoMock.Object, mapperMock.Object);
-
-        var result = await handler.Handle(new GetStructureByIdQuery(2), CancellationToken.None);
-
+        using var db = TestHelper.CreateDbContext();
+        db.Structures.Add(new Structure { Id = 1, Name = "GL", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
+        await db.SaveChangesAsync();
+        var handler = new GetStructureByIdQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetStructureByIdQuery(1), CancellationToken.None);
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Id);
+        Assert.Equal("GL", result!.Name);
     }
 }

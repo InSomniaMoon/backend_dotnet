@@ -1,42 +1,25 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Events;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Infrastructure.Handlers.Queries.Events;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetActualEventsQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Actual_Events()
+    public async Task Handle_Should_Return_Only_Future_Events()
     {
-        var eventRepoMock = new Mock<IEventRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        var events = new List<Event>
-        {
-            new() { Id = 3, Name = "Formation" },
-            new() { Id = 4, Name = "Reunion" }
-        };
-
-        eventRepoMock
-            .Setup(r => r.GetActualEventsAsync())
-            .ReturnsAsync(events);
-
-        mapperMock
-            .Setup(m => m.Map<EventResponse>(It.IsAny<Event>()))
-            .Returns<Event>(e => new EventResponse { Id = e.Id, Name = e.Name });
-
-        var handler = new GetActualEventsQueryHandler(eventRepoMock.Object, mapperMock.Object);
-
-        var result = (await handler.Handle(new GetActualEventsQuery(), CancellationToken.None)).ToList();
-
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, r => r.Id == 3 && r.Name == "Formation");
-        Assert.Contains(result, r => r.Id == 4 && r.Name == "Reunion");
-        mapperMock.Verify(m => m.Map<EventResponse>(It.IsAny<Event>()), Times.Exactly(2));
+        using var db = TestHelper.CreateDbContext();
+        var now = DateTime.UtcNow;
+        db.Events.AddRange(
+            new Event { Id = 1, Name = "Future", StructureId = 1, StartDate = now.AddDays(1), EndDate = now.AddDays(5) },
+            new Event { Id = 2, Name = "Past", StructureId = 1, StartDate = now.AddDays(-5), EndDate = now.AddDays(-1) }
+        );
+        await db.SaveChangesAsync();
+        var handler = new GetActualEventsQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetActualEventsQuery(), CancellationToken.None);
+        Assert.Single(result);
+        Assert.Equal("Future", result.First().Name);
     }
 }

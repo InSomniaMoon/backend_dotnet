@@ -13,18 +13,18 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Business rule error");
+            logger.LogWarning(ex, "Erreur de règle métier");
             await WriteErrorAsync(context, StatusCodes.Status400BadRequest, ex.Message);
         }
         catch (UnauthorizedAccessException ex)
         {
-            logger.LogWarning(ex, "Unauthorized access");
-            await WriteErrorAsync(context, StatusCodes.Status401Unauthorized, "Unauthorized");
+            logger.LogWarning(ex, "Accès non autorisé");
+            await WriteErrorAsync(context, StatusCodes.Status401Unauthorized, "Accès non autorisé.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception");
-            await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.", ex.Message);
+            logger.LogError(ex, "Exception non gérée");
+            await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "Une erreur inattendue est survenue.", ex.Message);
         }
     }
 

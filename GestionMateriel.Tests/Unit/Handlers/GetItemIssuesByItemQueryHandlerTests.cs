@@ -1,34 +1,24 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Items.Issues;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Domain.Enums;
+using GestionMateriel.Infrastructure.Handlers.Queries.Items.Issues;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetItemIssuesByItemQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Issues_For_Item()
+    public async Task Handle_Should_Return_Issues_For_Item()
     {
-        var repoMock = new Mock<IItemIssueRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        repoMock.Setup(r => r.GetByItemAsync(6)).ReturnsAsync(new List<ItemIssue>
-        {
-            new() { Id = 2, ItemId = 6, Value = "Issue", ReportedBy = 1, AffectedQuantity = 1 }
-        });
-
-        mapperMock.Setup(m => m.Map<ItemIssueResponse>(It.IsAny<ItemIssue>()))
-            .Returns<ItemIssue>(i => new ItemIssueResponse { Id = i.Id, ItemId = i.ItemId });
-
-        var handler = new GetItemIssuesByItemQueryHandler(repoMock.Object, mapperMock.Object);
-
-        var result = (await handler.Handle(new GetItemIssuesByItemQuery(6), CancellationToken.None)).ToList();
-
+        using var db = TestHelper.CreateDbContext();
+        db.ItemIssues.AddRange(
+            new ItemIssue { Id = 1, ItemId = 1, Value = "A", Status = IssueStatusEnum.Open, ReportedBy = 1 },
+            new ItemIssue { Id = 2, ItemId = 2, Value = "B", Status = IssueStatusEnum.Open, ReportedBy = 1 }
+        );
+        await db.SaveChangesAsync();
+        var handler = new GetItemIssuesByItemQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetItemIssuesByItemQuery(1), CancellationToken.None);
         Assert.Single(result);
-        Assert.Equal(6, result[0].ItemId);
     }
 }

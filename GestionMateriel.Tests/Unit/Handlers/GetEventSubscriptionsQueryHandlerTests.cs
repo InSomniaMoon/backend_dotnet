@@ -1,47 +1,35 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Events;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Domain.Enums;
+using GestionMateriel.Infrastructure.Handlers.Queries.Events;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetEventSubscriptionsQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Subscriptions()
+    public async Task Handle_Should_Return_Subscriptions_For_Event()
     {
-        var subscriptionRepoMock = new Mock<IEventSubscriptionRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        var subscriptions = new List<EventSubscription>
-        {
-            new() { EventId = 5, ItemId = 10, Quantity = 2 },
-            new() { EventId = 5, ItemId = 11, Quantity = 1 }
-        };
-
-        subscriptionRepoMock
-            .Setup(r => r.GetByEventAsync(5))
-            .ReturnsAsync(subscriptions);
-
-        mapperMock
-            .Setup(m => m.Map<EventSubscriptionResponse>(It.IsAny<EventSubscription>()))
-            .Returns<EventSubscription>(s => new EventSubscriptionResponse
-            {
-                EventId = s.EventId,
-                ItemId = s.ItemId,
-                Quantity = s.Quantity
-            });
-
-        var handler = new GetEventSubscriptionsQueryHandler(subscriptionRepoMock.Object, mapperMock.Object);
-
-        var result = (await handler.Handle(new GetEventSubscriptionsQuery(5), CancellationToken.None)).ToList();
-
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, r => r.ItemId == 10 && r.Quantity == 2);
-        Assert.Contains(result, r => r.ItemId == 11 && r.Quantity == 1);
-        mapperMock.Verify(m => m.Map<EventSubscriptionResponse>(It.IsAny<EventSubscription>()), Times.Exactly(2));
+        using var db = TestHelper.CreateDbContext();
+        var now = DateTime.UtcNow;
+        db.Structures.Add(new Structure { Id = 1, Name = "GL", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
+        db.Events.AddRange(
+            new Event { Id = 1, Name = "E1", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) },
+            new Event { Id = 2, Name = "E2", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) }
+        );
+        db.Items.AddRange(
+            new Item { Id = 1, Name = "A", CategoryId = 1, StructureId = 1, Stock = 1, Usable = true },
+            new Item { Id = 2, Name = "B", CategoryId = 1, StructureId = 1, Stock = 1, Usable = true }
+        );
+        db.EventSubscriptions.AddRange(
+            new EventSubscription { EventId = 1, ItemId = 1, Quantity = 1 },
+            new EventSubscription { EventId = 1, ItemId = 2, Quantity = 2 },
+            new EventSubscription { EventId = 2, ItemId = 1, Quantity = 1 }
+        );
+        await db.SaveChangesAsync();
+        var handler = new GetEventSubscriptionsQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetEventSubscriptionsQuery(1), CancellationToken.None);
+        Assert.Equal(2, result.Count());
     }
 }

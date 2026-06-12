@@ -1,55 +1,30 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Events;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Infrastructure.Handlers.Queries.Events;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetEventByIdQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Null_When_Event_Not_Found()
+    public async Task Handle_Should_Return_Event()
     {
-        var eventRepoMock = new Mock<IEventRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        eventRepoMock
-            .Setup(r => r.GetByIdAsync(404))
-            .ReturnsAsync((Event?)null);
-
-        var handler = new GetEventByIdQueryHandler(eventRepoMock.Object, mapperMock.Object);
-
-        var result = await handler.Handle(new GetEventByIdQuery(404), CancellationToken.None);
-
-        Assert.Null(result);
-        mapperMock.Verify(m => m.Map<EventResponse>(It.IsAny<Event>()), Times.Never);
+        using var db = TestHelper.CreateDbContext();
+        var now = DateTime.UtcNow;
+        db.Events.Add(new Event { Id = 1, Name = "Camp", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) });
+        await db.SaveChangesAsync();
+        var handler = new GetEventByIdQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetEventByIdQuery(1), CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.Equal("Camp", result!.Name);
     }
 
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Event_When_Found()
+    public async Task Handle_Should_Return_Null_When_Not_Found()
     {
-        var eventRepoMock = new Mock<IEventRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        var entity = new Event { Id = 9, Name = "Weekend" };
-
-        eventRepoMock
-            .Setup(r => r.GetByIdAsync(9))
-            .ReturnsAsync(entity);
-
-        mapperMock
-            .Setup(m => m.Map<EventResponse>(entity))
-            .Returns(new EventResponse { Id = 9, Name = "Weekend" });
-
-        var handler = new GetEventByIdQueryHandler(eventRepoMock.Object, mapperMock.Object);
-
-        var result = await handler.Handle(new GetEventByIdQuery(9), CancellationToken.None);
-
-        Assert.NotNull(result);
-        Assert.Equal(9, result!.Id);
-        Assert.Equal("Weekend", result.Name);
+        using var db = TestHelper.CreateDbContext();
+        var handler = new GetEventByIdQueryHandler(db, TestHelper.CreateMapper());
+        Assert.Null(await handler.Handle(new GetEventByIdQuery(99), CancellationToken.None));
     }
 }

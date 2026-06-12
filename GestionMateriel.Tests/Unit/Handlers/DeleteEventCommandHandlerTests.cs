@@ -1,27 +1,29 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.Handlers.Commands.Events;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Domain.Entities;
+using GestionMateriel.Infrastructure.Handlers.Commands.Events;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class DeleteEventCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_False_When_Event_Not_Found()
+    public async Task Handle_Should_Delete_Event()
     {
-        var eventRepoMock = new Mock<IEventRepository>();
+        using var db = TestHelper.CreateDbContext();
+        var now = DateTime.UtcNow;
+        db.Events.Add(new Event { Id = 1, Name = "E", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) });
+        await db.SaveChangesAsync();
+        var handler = new DeleteEventCommandHandler(db);
+        Assert.True(await handler.Handle(new DeleteEventCommand(1), CancellationToken.None));
+        Assert.Equal(0, db.Events.Count());
+    }
 
-        eventRepoMock
-            .Setup(r => r.GetByIdAsync(123))
-            .ReturnsAsync((GestionMateriel.Domain.Entities.Event?)null);
-
-        var handler = new DeleteEventCommandHandler(eventRepoMock.Object);
-
-        var result = await handler.Handle(new DeleteEventCommand(123), CancellationToken.None);
-
-        Assert.False(result);
-        eventRepoMock.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Never);
-        eventRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+    [Fact]
+    public async Task Handle_Should_Return_False_When_Not_Found()
+    {
+        using var db = TestHelper.CreateDbContext();
+        var handler = new DeleteEventCommandHandler(db);
+        Assert.False(await handler.Handle(new DeleteEventCommand(99), CancellationToken.None));
     }
 }

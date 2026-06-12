@@ -1,27 +1,29 @@
 using GestionMateriel.Application.Commands;
-using GestionMateriel.Application.Handlers.Commands.Items.Categories;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Domain.Entities;
+using GestionMateriel.Infrastructure.Handlers.Commands.Items.Categories;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class DeleteItemCategoryCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_False_When_Category_Not_Found()
+    public async Task Handle_Should_Delete_Category()
     {
-        var repoMock = new Mock<IItemCategoryRepository>();
+        using var db = TestHelper.CreateDbContext();
+        db.ItemCategories.Add(new ItemCategory { Id = 1, Name = "X", StructureId = 1 });
+        await db.SaveChangesAsync();
+        var handler = new DeleteItemCategoryCommandHandler(db);
+        var result = await handler.Handle(new DeleteItemCategoryCommand(1), CancellationToken.None);
+        Assert.True(result);
+        Assert.Equal(0, db.ItemCategories.Count());
+    }
 
-        repoMock
-            .Setup(r => r.GetByIdAsync(99))
-            .ReturnsAsync((GestionMateriel.Domain.Entities.ItemCategory?)null);
-
-        var handler = new DeleteItemCategoryCommandHandler(repoMock.Object);
-
-        var result = await handler.Handle(new DeleteItemCategoryCommand(99), CancellationToken.None);
-
-        Assert.False(result);
-        repoMock.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Never);
-        repoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+    [Fact]
+    public async Task Handle_Should_Return_False_When_Not_Found()
+    {
+        using var db = TestHelper.CreateDbContext();
+        var handler = new DeleteItemCategoryCommandHandler(db);
+        Assert.False(await handler.Handle(new DeleteItemCategoryCommand(99), CancellationToken.None));
     }
 }

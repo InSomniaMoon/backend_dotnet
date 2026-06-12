@@ -100,7 +100,7 @@ public class GestionMaterielDbContext(
         }
     }
 
-    private void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
+    protected virtual void ApplyTenantQueryFilters(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Structure>()
             .HasQueryFilter(s => !HasTenantMask || s.CodeStructure.StartsWith(TenantMask));

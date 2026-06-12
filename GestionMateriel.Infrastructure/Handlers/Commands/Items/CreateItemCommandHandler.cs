@@ -1,0 +1,19 @@
+using AutoMapper;
+using GestionMateriel.Application.Commands;
+using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Messaging;
+using GestionMateriel.Infrastructure.Data;
+
+namespace GestionMateriel.Infrastructure.Handlers.Commands.Items;
+
+public class CreateItemCommandHandler(GestionMaterielDbContext db, IMapper mapper)
+    : IRequestHandler<CreateItemCommand, ItemResponse>
+{
+    public async Task<ItemResponse> Handle(CreateItemCommand command, CancellationToken cancellationToken)
+    {
+        var item = mapper.Map<Domain.Entities.Item>(command.Request);
+        await db.Items.AddAsync(item, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return mapper.Map<ItemResponse>(item);
+    }
+}

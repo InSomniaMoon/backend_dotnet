@@ -1,34 +1,23 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Items.Categories;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Infrastructure.Handlers.Queries.Items.Categories;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetItemCategoriesQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Categories_By_Structure()
+    public async Task Handle_Should_Return_All_Categories()
     {
-        var repoMock = new Mock<IItemCategoryRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        repoMock.Setup(r => r.GetByStructureAsync()).ReturnsAsync(
-        [
-            new() { Id = 1, Name = "Cuisine", StructureId = 1 }
-        ]);
-
-        mapperMock.Setup(m => m.Map<ItemCategoryResponse>(It.IsAny<ItemCategory>()))
-            .Returns<ItemCategory>(c => new ItemCategoryResponse { Id = c.Id, Name = c.Name });
-
-        var handler = new GetItemCategoriesQueryHandler(repoMock.Object, mapperMock.Object);
-
-        var result = (await handler.Handle(new GetItemCategoriesQuery(), CancellationToken.None)).ToList();
-
-        Assert.Single(result);
-        Assert.Equal("Cuisine", result[0].Name);
+        using var db = TestHelper.CreateDbContext();
+        db.ItemCategories.AddRange(
+            new ItemCategory { Id = 1, Name = "A", StructureId = 1 },
+            new ItemCategory { Id = 2, Name = "B", StructureId = 1 }
+        );
+        await db.SaveChangesAsync();
+        var handler = new GetItemCategoriesQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetItemCategoriesQuery(), CancellationToken.None);
+        Assert.Equal(2, result.Count());
     }
 }

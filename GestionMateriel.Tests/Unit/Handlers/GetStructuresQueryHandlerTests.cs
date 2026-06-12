@@ -1,34 +1,24 @@
-using AutoMapper;
-using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Handlers.Queries.Structures;
 using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
-using GestionMateriel.Domain.Interfaces;
-using Moq;
+using GestionMateriel.Domain.Enums;
+using GestionMateriel.Infrastructure.Handlers.Queries.Structures;
+using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
 public class GetStructuresQueryHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Return_Mapped_Structures()
+    public async Task Handle_Should_Return_All_Structures()
     {
-        var repoMock = new Mock<IStructureRepository>();
-        var mapperMock = new Mock<IMapper>();
-
-        repoMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Structure>
-        {
-            new() { Id = 1, Name = "G1", NomStructure = "G1", CodeStructure = "G1", Type = GestionMateriel.Domain.Enums.StructureTypeEnum.Groupe }
-        });
-
-        mapperMock.Setup(m => m.Map<StructureResponse>(It.IsAny<Structure>()))
-            .Returns<Structure>(s => new StructureResponse { Id = s.Id, Name = s.Name });
-
-        var handler = new GetStructuresQueryHandler(repoMock.Object, mapperMock.Object);
-
-        var result = (await handler.Handle(new GetStructuresQuery(), CancellationToken.None)).ToList();
-
-        Assert.Single(result);
-        Assert.Equal("G1", result[0].Name);
+        using var db = TestHelper.CreateDbContext();
+        db.Structures.AddRange(
+            new Structure { Id = 1, Name = "A", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe },
+            new Structure { Id = 2, Name = "B", CodeStructure = "GL2", Type = StructureTypeEnum.Groupe }
+        );
+        await db.SaveChangesAsync();
+        var handler = new GetStructuresQueryHandler(db, TestHelper.CreateMapper());
+        var result = await handler.Handle(new GetStructuresQuery(), CancellationToken.None);
+        Assert.Equal(2, result.Count());
     }
 }
