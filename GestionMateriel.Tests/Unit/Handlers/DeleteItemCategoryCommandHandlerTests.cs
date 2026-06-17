@@ -1,7 +1,6 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Commands.Items.Categories;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 
@@ -10,7 +9,7 @@ public class DeleteItemCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_Should_Delete_Category()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         db.ItemCategories.Add(new ItemCategory { Id = 1, Name = "X", StructureId = 1 });
         await db.SaveChangesAsync();
         var handler = new DeleteItemCategoryCommandHandler(db);
@@ -22,7 +21,7 @@ public class DeleteItemCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_Should_Return_False_When_Not_Found()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         var handler = new DeleteItemCategoryCommandHandler(db);
         Assert.False(await handler.Handle(new DeleteItemCategoryCommand(99), CancellationToken.None));
     }

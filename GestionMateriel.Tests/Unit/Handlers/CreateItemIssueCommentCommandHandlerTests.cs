@@ -3,7 +3,6 @@ using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Handlers.Commands.Items.Issues;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 

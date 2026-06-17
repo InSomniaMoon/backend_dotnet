@@ -1,5 +1,4 @@
 using AutoMapper;
-using GestionMateriel.Application.DTOs.Requests;
 using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Domain.Entities;

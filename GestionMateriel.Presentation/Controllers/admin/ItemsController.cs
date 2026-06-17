@@ -1,6 +1,5 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Items;
-using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Queries;

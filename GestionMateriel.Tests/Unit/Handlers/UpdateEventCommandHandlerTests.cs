@@ -2,7 +2,6 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Commands.Events;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 

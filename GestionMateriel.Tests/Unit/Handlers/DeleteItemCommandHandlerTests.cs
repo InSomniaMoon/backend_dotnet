@@ -1,7 +1,6 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Commands.Items;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 

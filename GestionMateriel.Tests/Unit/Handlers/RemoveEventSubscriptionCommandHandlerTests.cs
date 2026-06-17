@@ -2,7 +2,6 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Handlers.Commands.Events;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 

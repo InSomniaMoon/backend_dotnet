@@ -2,7 +2,6 @@ using GestionMateriel.Application.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Handlers.Queries.Items.Issues;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 

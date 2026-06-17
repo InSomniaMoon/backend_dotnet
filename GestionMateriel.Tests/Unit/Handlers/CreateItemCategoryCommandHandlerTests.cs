@@ -1,7 +1,6 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Infrastructure.Handlers.Commands.Items.Categories;
-using GestionMateriel.Tests;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
 

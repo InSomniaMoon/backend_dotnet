@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using GestionMateriel.Application.DTOs.Requests;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Services;
