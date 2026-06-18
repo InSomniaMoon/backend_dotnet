@@ -13,5 +13,5 @@ public class ItemResponse
     public string State { get; set; } = string.Empty;
     public DateTime? DateOfBuy { get; set; }
     public string? ImagePath { get; set; }
-    public ItemCategoryResponse Category { get; set; } = null!;
+    public ItemCategoryResponse? Category { get; set; } = null!;
 }

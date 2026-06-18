@@ -20,13 +20,13 @@ public static class ItemMappings
             ImagePath = item.Image,
             State = item.State.ToString(),
             UsableStock = item.UsableStock,
-            Category = item.Category != null ? new ItemCategoryResponse
+            Category = new ItemCategoryResponse
             {
                 Id = item.Category.Id,
                 Name = item.Category.Name,
                 StructureId = item.Category.StructureId,
                 Identified = item.Category.Identified
-            } : null
+            }
         };
     }
 }
