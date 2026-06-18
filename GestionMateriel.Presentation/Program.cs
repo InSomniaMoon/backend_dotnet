@@ -103,8 +103,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseGlobalExceptionMiddleware();
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseTenantContextMiddleware();
 app.UseAuthorization();

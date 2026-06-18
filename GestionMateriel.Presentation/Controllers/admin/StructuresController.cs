@@ -1,3 +1,6 @@
+using GestionMateriel.Application.DTOs.Common;
+using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.DTOs.Responses.Structures;
 using GestionMateriel.Application.Features.Structures.Queries;
 using GestionMateriel.Application.Messaging;
@@ -8,7 +11,9 @@ namespace GestionMateriel.Presentation.Controllers.Admin;
 [ApiController]
 [Route("api/admin/[controller]")]
 public class StructuresController(
-    IRequestHandler<GetCurrentStructureWithChildrenQuery, StructureWithChildrenResponse> getCurrentStructureWithChildren
+    IRequestHandler<GetCurrentStructureWithChildrenQuery, StructureWithChildrenResponse>
+        getCurrentStructureWithChildren,
+    IRequestHandler<GetStructureMembersQuery, PaginatedResponse<UserWithStructuresResponse>> getStructureMembers
 ) : ControllerBase
 {
     [HttpGet]
@@ -19,5 +24,18 @@ public class StructuresController(
         // Implementation for retrieving structures
         return Ok(await getCurrentStructureWithChildren.Handle(new GetCurrentStructureWithChildrenQuery(1),
             cancellationToken));
+    }
+
+    [HttpGet("{structureId:int}/users")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PaginatedResponse<UserWithStructuresResponse>>> GetStructureUsers(int structureId,
+        [FromQuery] PaginatedRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await getStructureMembers.Handle(
+            new GetStructureMembersQuery(structureId, request.Page, request.Size, request.Q, request.OrderDir,
+                request.OrderBy),
+            cancellationToken);
+        return Ok(result);
     }
 }

@@ -8,5 +8,5 @@ public class UserWithStructuresResponse
     public string Email { get; set; } = string.Empty;
     public string? Phone { get; set; }
     public string Role { get; set; } = string.Empty;
-    public IEnumerable<StructureMemberResponse> Structures { get; set; } = [];
+    public IEnumerable<StructureWithRoleResponse> Structures { get; set; } = [];
 }

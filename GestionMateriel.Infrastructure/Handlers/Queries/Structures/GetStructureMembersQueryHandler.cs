@@ -1,4 +1,4 @@
-using AutoMapper;
+using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.Structures.Queries;
@@ -7,17 +7,65 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Handlers.Queries.Structures;
 
-public class GetStructureMembersQueryHandler(GestionMaterielDbContext db, IMapper mapper)
-    : IRequestHandler<GetStructureMembersQuery, IEnumerable<StructureMemberResponse>>
+public class GetStructureMembersQueryHandler(GestionMaterielDbContext db)
+    : IRequestHandler<GetStructureMembersQuery, PaginatedResponse<UserWithStructuresResponse>>
 {
-    public async Task<IEnumerable<StructureMemberResponse>> Handle(GetStructureMembersQuery query,
+    public async Task<PaginatedResponse<UserWithStructuresResponse>> Handle(
+        GetStructureMembersQuery query,
         CancellationToken cancellationToken)
     {
+        query.Validate();
         var structure = await db.Structures
-            .Include(s => s.UserStructures)
-            .ThenInclude(us => us.User)
-            .FirstOrDefaultAsync(s => s.Id == query.StructureId, cancellationToken);
+            .AsNoTracking()
+            .Where(s => s.Id == query.StructureId)
+            .Select(s => new { Code = s.CodeStructure, s.Type })
+            .FirstOrDefaultAsync(cancellationToken);
 
-        return structure is null ? [] : structure.UserStructures.Select(mapper.Map<StructureMemberResponse>);
+
+        var usersQuery = db.Users
+            .AsNoTracking()
+            .Include(u => u.UserStructures)
+            .Where(u => u.UserStructures.Any(us => EF.Functions.Like(us.Structure.CodeStructure,
+                structure!.Type.ComputeCodeStructureMask(structure.Code) + "%")))
+            .Select(user => new UserWithStructuresResponse
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Structures = user.UserStructures.Select(us => new StructureWithRoleResponse()
+                {
+                    Role = us.Role.Value,
+                    Id = us.Structure.Id,
+                    Name = us.Structure.Name,
+                    Color = us.Structure.Color
+                })
+            });
+
+        usersQuery = query.OrderBy switch
+        {
+            "firstname" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.FirstName),
+            "firstname" => usersQuery.OrderBy(u => u.FirstName),
+            "lastname" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.LastName),
+            "lastname" => usersQuery.OrderBy(u => u.LastName),
+            "email" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.Email),
+            "email" => usersQuery.OrderBy(u => u.Email),
+            _ when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.Id),
+            _ => usersQuery.OrderBy(u => u.Id)
+        };
+
+        var count = await usersQuery.CountAsync(cancellationToken);
+        var users = await usersQuery
+            .Skip((query.PageNumber - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PaginatedResponse<UserWithStructuresResponse>
+        {
+            TotalCount = count,
+            Page = query.PageNumber,
+            Size = query.PageSize,
+            Data = users
+        };
     }
 }
