@@ -1,0 +1,13 @@
+**/.DS_Store
+**/.git
+**/.gitignore
+**/bin
+**/obj
+**/.vs
+**/.vscode
+**/TestResults
+**/*.user
+**/*.suo
+
+# Local/runtime artifacts
+GestionMateriel.Presentation/logs

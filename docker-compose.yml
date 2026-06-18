@@ -1,0 +1,11 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: DockerFile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=host.docker.internal;Port=5432;Database=matos;Username=webdev;Password=password
+    ports:
+      - "8080:8080"

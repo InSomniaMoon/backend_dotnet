@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1.7
+
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Copy project files first to leverage Docker layer caching
+COPY GestionMateriel.Domain/GestionMateriel.Domain.csproj GestionMateriel.Domain/
+COPY GestionMateriel.Application/GestionMateriel.Application.csproj GestionMateriel.Application/
+COPY GestionMateriel.Infrastructure/GestionMateriel.Infrastructure.csproj GestionMateriel.Infrastructure/
+COPY GestionMateriel.Presentation/GestionMateriel.Presentation.csproj GestionMateriel.Presentation/
+
+RUN dotnet restore GestionMateriel.Presentation/GestionMateriel.Presentation.csproj
+
+# Copy full source and publish
+COPY . .
+RUN dotnet publish GestionMateriel.Presentation/GestionMateriel.Presentation.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+
+# System.Drawing.Common can require native dependencies on Linux
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgdiplus \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "GestionMateriel.Presentation.dll"]
