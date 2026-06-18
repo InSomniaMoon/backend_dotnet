@@ -3,7 +3,7 @@ using GestionMateriel.Application.Features.ItemIssues.Queries;
 using GestionMateriel.Application.Messaging;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GestionMateriel.Presentation.Controllers.admin;
+namespace GestionMateriel.Presentation.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/issues")]

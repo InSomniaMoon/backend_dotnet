@@ -30,5 +30,30 @@ public sealed class StructureTypeEnum
     }
 
     public override int GetHashCode() => Value.GetHashCode();
+
+    public string ComputeCodeStructureMask(string codeStructure)
+    {
+        if (Equals(Unite))
+        {
+            return codeStructure;
+        }
+
+        if (Equals(Groupe))
+        {
+            return codeStructure[..2];
+        }
+
+        if (Equals(National))
+        {
+            return codeStructure[..4];
+        }
+
+        if (Equals(Territoire))
+        {
+            return codeStructure[..6];
+        }
+
+        throw new InvalidOperationException($"Unknown structure type: {this}");
+    }
 }
 

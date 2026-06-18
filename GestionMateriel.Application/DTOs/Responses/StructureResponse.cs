@@ -18,3 +18,8 @@ public class StructureWithRoleResponse : StructureResponse
 {
     public string Role { get; set; } = RoleEnum.User.ToString();
 }
+
+public class StructureWithMembersResponse : StructureResponse
+{
+    public List<UserResponse> Members { get; set; } = [];
+}

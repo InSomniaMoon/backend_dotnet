@@ -12,7 +12,7 @@ public class GestionMaterielDbContext(
     DbContextOptions<GestionMaterielDbContext> options,
     ITenantProvider tenantProvider,
     IOptions<JwtSettings> jwtSettings
-    ) : DbContext(options)
+) : DbContext(options)
 {
     private readonly ITenantProvider _tenantProvider = tenantProvider;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
@@ -52,8 +52,6 @@ public class GestionMaterielDbContext(
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
 
         ApplyTenantQueryFilters(modelBuilder);
-
-
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -63,7 +61,8 @@ public class GestionMaterielDbContext(
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
     {
         NormalizeTrackedDateTimesToUtc();
         ApplyTenantScopeOnAddedEntities();
@@ -115,10 +114,12 @@ public class GestionMaterielDbContext(
             .HasQueryFilter(i => !HasTenantMask || (i.CodeStructure != null && i.CodeStructure.StartsWith(TenantMask)));
 
         modelBuilder.Entity<ItemIssue>()
-            .HasQueryFilter(ii => !HasTenantMask || (ii.Item.CodeStructure != null && ii.Item.CodeStructure.StartsWith(TenantMask)));
+            .HasQueryFilter(ii =>
+                !HasTenantMask || (ii.Item.CodeStructure != null && ii.Item.CodeStructure.StartsWith(TenantMask)));
 
         modelBuilder.Entity<ItemIssueComment>()
-            .HasQueryFilter(c => !HasTenantMask || (c.ItemIssue.Item.CodeStructure != null && c.ItemIssue.Item.CodeStructure.StartsWith(TenantMask)));
+            .HasQueryFilter(c => !HasTenantMask || (c.ItemIssue.Item.CodeStructure != null &&
+                                                    c.ItemIssue.Item.CodeStructure.StartsWith(TenantMask)));
 
         modelBuilder.Entity<Event>()
             .HasQueryFilter(e => !HasTenantMask || e.Structure.CodeStructure.StartsWith(TenantMask));
@@ -134,35 +135,11 @@ public class GestionMaterielDbContext(
             return;
         }
 
-        var scopedEntries = ChangeTracker.Entries<IStructureCodeScopedEntity>()
-            .Where(e => e.State is EntityState.Added or EntityState.Modified)
-            .ToList();
-
-        var structureIds = scopedEntries
-            .Select(e => e.Entity.CodeStructure)
-            .Where(id => !string.IsNullOrWhiteSpace(id))
-            .Distinct()
-            .ToList();
-
-        var structureCode = TenantStructureCode;
-
-        // foreach (var entry in scopedEntries)
-        // {
-        //     if (entry.Entity is IStructureCodeScopedEntity structureCodeScopedEntity)
-        //     {
-        //         structureCodeScopedEntity.CodeStructure = structureCode;
-        //     }
-
-        //     if (HasTenantMask && !(structureCode?.StartsWith(TenantMask, StringComparison.Ordinal) ?? false))
-        //     {
-        //         throw new UnauthorizedAccessException("La structure demandée n'appartient pas au tenant courant.");
-        //     }
-        // }
-
         foreach (var entry in ChangeTracker.Entries<IStructureCodeScopedEntity>()
                      .Where(e => e.State is EntityState.Added or EntityState.Modified))
         {
-            if (string.IsNullOrWhiteSpace(entry.Entity.CodeStructure) && !string.IsNullOrWhiteSpace(TenantStructureCode))
+            if (string.IsNullOrWhiteSpace(entry.Entity.CodeStructure) &&
+                !string.IsNullOrWhiteSpace(TenantStructureCode))
             {
                 entry.Entity.CodeStructure = TenantStructureCode;
             }
@@ -174,8 +151,6 @@ public class GestionMaterielDbContext(
                 throw new UnauthorizedAccessException("Le code structure n'appartient pas au tenant courant.");
             }
         }
-
-
     }
 }
 
