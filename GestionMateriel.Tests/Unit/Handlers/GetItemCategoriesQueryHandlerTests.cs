@@ -1,4 +1,5 @@
-using GestionMateriel.Application.Queries;
+
+using GestionMateriel.Application.Features.Items.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Queries.Items.Categories;
 
@@ -9,7 +10,7 @@ public class GetItemCategoriesQueryHandlerTests
     [Fact]
     public async Task Handle_Should_Return_All_Categories()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         db.ItemCategories.AddRange(
             new ItemCategory { Id = 1, Name = "A", StructureId = 1 },
             new ItemCategory { Id = 2, Name = "B", StructureId = 1 }

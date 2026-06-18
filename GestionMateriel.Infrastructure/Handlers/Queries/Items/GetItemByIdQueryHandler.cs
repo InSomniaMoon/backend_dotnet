@@ -1,7 +1,7 @@
 using AutoMapper;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Items.Queries;
 using GestionMateriel.Infrastructure.Data;
 
 namespace GestionMateriel.Infrastructure.Handlers.Queries.Items;

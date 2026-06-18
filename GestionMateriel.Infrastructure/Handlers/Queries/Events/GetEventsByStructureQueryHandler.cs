@@ -1,7 +1,7 @@
 using AutoMapper;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Events.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,8 @@ namespace GestionMateriel.Infrastructure.Handlers.Queries.Events;
 public class GetEventsByStructureQueryHandler(GestionMaterielDbContext db, IMapper mapper)
     : IRequestHandler<GetEventsByStructureQuery, IEnumerable<EventResponse>>
 {
-    public async Task<IEnumerable<EventResponse>> Handle(GetEventsByStructureQuery query, CancellationToken cancellationToken)
+    public async Task<IEnumerable<EventResponse>> Handle(GetEventsByStructureQuery query,
+        CancellationToken cancellationToken)
     {
         var events = await db.Events
             .AsNoTracking()

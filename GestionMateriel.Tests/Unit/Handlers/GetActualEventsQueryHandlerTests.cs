@@ -1,4 +1,5 @@
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Events.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Queries.Events;
 
@@ -9,16 +10,20 @@ public class GetActualEventsQueryHandlerTests
     [Fact]
     public async Task Handle_Should_Return_Only_Future_Events()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         var now = DateTime.UtcNow;
         db.Events.AddRange(
-            new Event { Id = 1, Name = "Future", StructureId = 1, StartDate = now.AddDays(1), EndDate = now.AddDays(5) },
+            new Event
+            {
+                Id = 1, Name = "Future", StructureId = 1, StartDate = now.AddDays(1), EndDate = now.AddDays(5)
+            },
             new Event { Id = 2, Name = "Past", StructureId = 1, StartDate = now.AddDays(-5), EndDate = now.AddDays(-1) }
         );
         await db.SaveChangesAsync();
         var handler = new GetActualEventsQueryHandler(db, TestHelper.CreateMapper());
         var result = await handler.Handle(new GetActualEventsQuery(), CancellationToken.None);
-        Assert.Single(result);
-        Assert.Equal("Future", result.First().Name);
+        IEnumerable<EventResponse> eventResponses = result as EventResponse[] ?? result.ToArray();
+        Assert.Single(eventResponses);
+        Assert.Equal("Future", eventResponses.First().Name);
     }
 }

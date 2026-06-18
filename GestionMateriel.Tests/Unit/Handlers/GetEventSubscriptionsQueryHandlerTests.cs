@@ -1,4 +1,4 @@
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Events.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Handlers.Queries.Events;
@@ -10,9 +10,10 @@ public class GetEventSubscriptionsQueryHandlerTests
     [Fact]
     public async Task Handle_Should_Return_Subscriptions_For_Event()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         var now = DateTime.UtcNow;
-        db.Structures.Add(new Structure { Id = 1, Name = "GL", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
+        db.Structures.Add(new Structure
+            { Id = 1, Name = "GL", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
         db.Events.AddRange(
             new Event { Id = 1, Name = "E1", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) },
             new Event { Id = 2, Name = "E2", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) }

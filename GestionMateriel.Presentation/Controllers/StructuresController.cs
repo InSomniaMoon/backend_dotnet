@@ -1,8 +1,8 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Structures;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Structures.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,21 +42,24 @@ public class StructuresController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateStructure([FromBody] CreateStructureRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateStructure([FromBody] CreateStructureRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await create.Handle(new CreateStructureCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetStructureById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateStructure([FromRoute] int id, [FromBody] UpdateStructureRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateStructure([FromRoute] int id, [FromBody] UpdateStructureRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await update.Handle(new UpdateStructureCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpPost("members")]
-    public async Task<IActionResult> AddUserToStructure([FromBody] AddUserToStructureRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddUserToStructure([FromBody] AddUserToStructureRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await addMember.Handle(new AddUserToStructureCommand(request), cancellationToken);
         return result is null ? NotFound() : Ok(result);

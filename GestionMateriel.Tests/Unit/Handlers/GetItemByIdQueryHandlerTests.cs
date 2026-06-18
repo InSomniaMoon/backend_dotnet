@@ -1,4 +1,4 @@
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Items.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Queries.Items;
 
@@ -17,7 +17,7 @@ public class GetItemByIdQueryHandlerTests
         var result = await handler.Handle(new GetItemByIdQuery(1), CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal("Tente", result!.Name);
+        Assert.Equal("Tente", result.Name);
     }
 
     [Fact]

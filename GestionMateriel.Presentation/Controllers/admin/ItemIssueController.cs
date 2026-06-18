@@ -1,9 +1,9 @@
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.ItemIssues.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GestionMateriel.Presentation.Controllers.Admin;
+namespace GestionMateriel.Presentation.Controllers.admin;
 
 [ApiController]
 [Route("api/admin/issues")]

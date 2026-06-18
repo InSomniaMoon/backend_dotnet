@@ -1,8 +1,8 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Events.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,9 +25,11 @@ public class EventsController(
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetEvents([FromQuery] GetEventsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetEvents([FromQuery] GetEventsRequest request,
+        CancellationToken cancellationToken)
     {
-        var events = await getByStructure.Handle(new GetEventsByStructureQuery(request.StructureId ?? 0), cancellationToken);
+        var events =
+            await getByStructure.Handle(new GetEventsByStructureQuery(request.StructureId ?? 0), cancellationToken);
         return Ok(events);
     }
 
@@ -49,7 +51,8 @@ public class EventsController(
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await create.Handle(new CreateEventCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetEventById), new { id = result.Id }, result);
@@ -58,7 +61,8 @@ public class EventsController(
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await update.Handle(new UpdateEventCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
@@ -84,7 +88,8 @@ public class EventsController(
     [HttpPost("{id:int}/subscriptions")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddSubscription([FromRoute] int id, [FromBody] AddEventSubscriptionRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddSubscription([FromRoute] int id, [FromBody] AddEventSubscriptionRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await addSubscription.Handle(new AddEventSubscriptionCommand(id, request), cancellationToken);
         return result is null ? NotFound() : StatusCode(StatusCodes.Status201Created, result);
@@ -93,9 +98,11 @@ public class EventsController(
     [HttpDelete("{id:int}/subscriptions/{itemId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RemoveSubscription([FromRoute] int id, [FromRoute] int itemId, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveSubscription([FromRoute] int id, [FromRoute] int itemId,
+        CancellationToken cancellationToken)
     {
-        var deleted = await removeSubscription.Handle(new RemoveEventSubscriptionCommand(id, itemId), cancellationToken);
+        var deleted =
+            await removeSubscription.Handle(new RemoveEventSubscriptionCommand(id, itemId), cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
 }

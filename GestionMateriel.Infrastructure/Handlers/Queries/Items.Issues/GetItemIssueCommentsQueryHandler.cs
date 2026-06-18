@@ -1,7 +1,7 @@
 using AutoMapper;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.ItemIssues.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,8 @@ namespace GestionMateriel.Infrastructure.Handlers.Queries.Items.Issues;
 public class GetItemIssueCommentsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
     : IRequestHandler<GetItemIssueCommentsQuery, IEnumerable<ItemIssueCommentResponse>>
 {
-    public async Task<IEnumerable<ItemIssueCommentResponse>> Handle(GetItemIssueCommentsQuery query, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ItemIssueCommentResponse>> Handle(GetItemIssueCommentsQuery query,
+        CancellationToken cancellationToken)
     {
         var comments = await db.ItemIssueComments
             .AsNoTracking()

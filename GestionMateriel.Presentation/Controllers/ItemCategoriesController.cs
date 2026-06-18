@@ -1,8 +1,9 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Categories.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Items.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,8 @@ public class ItemCategoriesController(
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCategories([FromQuery] GetItemCategoriesRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCategories([FromQuery] GetItemCategoriesRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await getAll.Handle(new GetItemCategoriesQuery(), cancellationToken);
         return Ok(result);
@@ -38,7 +40,8 @@ public class ItemCategoriesController(
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateCategory([FromBody] CreateItemCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateCategory([FromBody] CreateItemCategoryRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await create.Handle(new CreateItemCategoryCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetCategoryById), new { id = result.Id }, result);
@@ -47,7 +50,8 @@ public class ItemCategoriesController(
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] UpdateItemCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] UpdateItemCategoryRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await update.Handle(new UpdateItemCategoryCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);

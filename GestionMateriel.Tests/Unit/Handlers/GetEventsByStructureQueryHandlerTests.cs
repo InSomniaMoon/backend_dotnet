@@ -1,4 +1,4 @@
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Events.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Queries.Events;
 
@@ -9,7 +9,7 @@ public class GetEventsByStructureQueryHandlerTests
     [Fact]
     public async Task Handle_Should_Return_Events_For_Structure()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         var now = DateTime.UtcNow;
         db.Events.AddRange(
             new Event { Id = 1, Name = "A", StructureId = 1, StartDate = now, EndDate = now.AddDays(1) },

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace GestionMateriel.Presentation.Controllers.Admin;
+namespace GestionMateriel.Presentation.Controllers.admin;
 
 
 [ApiController]

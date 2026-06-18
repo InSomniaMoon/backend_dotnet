@@ -2,7 +2,7 @@ using AutoMapper;
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Items.Queries;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +12,14 @@ namespace GestionMateriel.Infrastructure.Handlers.Queries.Items;
 public class GetItemsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
     : IRequestHandler<GetItemsQuery, PaginatedResponse<ItemResponse>>
 {
-    public async Task<PaginatedResponse<ItemResponse>> Handle(GetItemsQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<ItemResponse>> Handle(GetItemsQuery request,
+        CancellationToken cancellationToken)
     {
         var query = db.Items
             .Include(i => i.Category)
             .Include(i => i.Issues.Where(ii => ii.Status == IssueStatusEnum.Open))
-            .Where(i => string.IsNullOrEmpty(request.Q) || i.Name.Contains(request.Q, StringComparison.OrdinalIgnoreCase));
+            .Where(i => string.IsNullOrEmpty(request.Q) ||
+                        i.Name.Contains(request.Q, StringComparison.OrdinalIgnoreCase));
 
         var total = await query.CountAsync(cancellationToken);
 
@@ -42,7 +44,7 @@ public class GetItemsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
 
         return new PaginatedResponse<ItemResponse>
         {
-            Data = [.. items.Select(mapper.Map<ItemResponse>)],
+            Data = items.Select(mapper.Map<ItemResponse>),
             TotalCount = total,
             Page = request.Page,
             Size = request.Size

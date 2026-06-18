@@ -5,7 +5,7 @@ using GestionMateriel.Application.DTOs.Requests.Items;
 using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Items.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,13 +18,15 @@ public class ItemsController(
     IRequestHandler<GetItemsQuery, PaginatedResponse<ItemResponse>> getAll,
     IRequestHandler<GetItemByIdQuery, ItemResponse?> getById,
     IRequestHandler<CreateItemCommand, ItemResponse> create,
+    IRequestHandler<CreateItemIssueCommand, ItemIssueResponse?> createItemIssue,
     IRequestHandler<UpdateItemCommand, ItemResponse?> update,
     IRequestHandler<DeleteItemCommand, bool> delete
 ) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetItems([FromQuery] GetPaginatedItemsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetItems([FromQuery] GetPaginatedItemsRequest request,
+        CancellationToken cancellationToken)
     {
         var query = new GetItemsQuery(request.Page, request.Size, request.Q, request.OrderDir, request.OrderBy);
         var result = await getAll.Handle(query, cancellationToken);
@@ -43,7 +45,8 @@ public class ItemsController(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateItem([FromBody] CreateItemRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateItem([FromBody] CreateItemRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await create.Handle(new CreateItemCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetItemById), new { id = result.Id }, result);
@@ -52,7 +55,8 @@ public class ItemsController(
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateItem([FromRoute] int id, [FromBody] UpdateItemRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateItem([FromRoute] int id, [FromBody] UpdateItemRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await update.Handle(new UpdateItemCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
@@ -71,11 +75,15 @@ public class ItemsController(
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> CreateItemIssue([FromRoute] int id, [FromBody] CreateItemIssueRequest request, IRequestHandler<CreateItemIssueCommand, ItemIssueResponse?> create, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateItemIssue([FromRoute] int id, [FromBody] CreateItemIssueRequest request,
+        CancellationToken cancellationToken)
     {
-
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var result = await create.Handle(new CreateItemIssueCommand(id, int.Parse(userId!), request), cancellationToken);
-        return result is null ? NotFound() : CreatedAtAction(nameof(Admin.ItemsController.GetItemIssues), new { id }, result);
+        var result =
+            await createItemIssue.Handle(new CreateItemIssueCommand(id, int.Parse(userId!), request),
+                cancellationToken);
+        return result is null
+            ? NotFound()
+            : CreatedAtAction(nameof(Admin.ItemsController.GetItemIssues), new { id }, result);
     }
 }

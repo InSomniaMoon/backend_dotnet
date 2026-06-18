@@ -2,7 +2,7 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Users;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Users.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +32,8 @@ public class UsersController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request,
+        CancellationToken cancellationToken)
     {
         var result = await create.Handle(new CreateUserCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetUsers), new { id = result.Id }, result);

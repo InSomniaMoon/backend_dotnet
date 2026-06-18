@@ -1,4 +1,4 @@
-using GestionMateriel.Application.Queries;
+using GestionMateriel.Application.Features.Items.Queries;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Queries.Items;
 
@@ -9,7 +9,7 @@ public class GetItemsQueryHandlerTests
     [Fact]
     public async Task Handle_Should_Return_Paginated_Items()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         db.ItemCategories.Add(new ItemCategory { Id = 1, Name = "Cat", StructureId = 1 });
         db.Items.AddRange(
             new Item { Id = 1, Name = "A", CategoryId = 1, StructureId = 1, Stock = 1, Usable = true },

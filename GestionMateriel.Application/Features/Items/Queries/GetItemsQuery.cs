@@ -1,4 +1,4 @@
-namespace GestionMateriel.Application.Queries;
+namespace GestionMateriel.Application.Features.Items.Queries;
 
 public record GetItemsQuery(
     int Page = 1,
