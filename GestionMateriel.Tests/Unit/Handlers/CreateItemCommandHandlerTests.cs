@@ -1,5 +1,5 @@
-using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Items;
+using GestionMateriel.Application.Features.Items.Commands;
 using GestionMateriel.Infrastructure.Handlers.Commands.Items;
 
 namespace GestionMateriel.Tests.Unit.Handlers;
@@ -9,7 +9,7 @@ public class CreateItemCommandHandlerTests
     [Fact]
     public async Task Handle_Should_Create_Item_And_Return_Response()
     {
-        using var db = TestHelper.CreateDbContext();
+        await using var db = TestHelper.CreateDbContext();
         var mapper = TestHelper.CreateMapper();
         var handler = new CreateItemCommandHandler(db, mapper);
 

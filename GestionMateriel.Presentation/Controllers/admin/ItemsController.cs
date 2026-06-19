@@ -1,8 +1,10 @@
 using GestionMateriel.Application.Commands;
+using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests.Items;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.ItemIssues.Queries;
+using GestionMateriel.Application.Features.Items.Commands;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestionMateriel.Presentation.Controllers.Admin;
@@ -11,6 +13,33 @@ namespace GestionMateriel.Presentation.Controllers.Admin;
 [Route("api/admin/items")]
 public class ItemsController : ControllerBase
 {
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateItem([FromBody] CreateItemRequest request,
+        IRequestHandler<CreateItemCommand, ItemResponse> create, CancellationToken cancellationToken)
+    {
+        var result = await create.Handle(new CreateItemCommand(request), cancellationToken);
+        return Created("", result);
+    }
+
+    [HttpPost("images")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadItemImage([FromForm] IFormFile image,
+        IRequestHandler<UploadImageCommand, ImageCreatedResponse> uploadImage,
+        CancellationToken cancellationToken)
+    {
+        if (image is null || image.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        await using var stream = image.OpenReadStream();
+        var result =
+            await uploadImage.Handle(new UploadImageCommand(stream, "items", image.FileName), cancellationToken);
+        return Created("", result);
+    }
+
+
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

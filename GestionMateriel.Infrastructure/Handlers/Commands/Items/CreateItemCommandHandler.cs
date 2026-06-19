@@ -1,6 +1,6 @@
 using AutoMapper;
-using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Items.Commands;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Infrastructure.Data;
 

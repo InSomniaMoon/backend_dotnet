@@ -4,6 +4,7 @@ using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests.Items;
 using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Items.Commands;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.Items.Queries;
 using Microsoft.AspNetCore.Authorization;

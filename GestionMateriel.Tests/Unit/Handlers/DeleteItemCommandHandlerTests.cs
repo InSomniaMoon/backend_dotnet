@@ -1,4 +1,4 @@
-using GestionMateriel.Application.Commands;
+using GestionMateriel.Application.Features.Items.Commands;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Infrastructure.Handlers.Commands.Items;
 
