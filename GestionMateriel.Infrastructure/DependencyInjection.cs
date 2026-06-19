@@ -20,10 +20,12 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString));
 
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+        services.Configure<FileStorageOptions>(configuration.GetSection("FileStorage"));
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITenantProvider, TenantProvider>();
+        services.AddScoped<IImageStorageService, LocalImageStorageService>();
 
         RegisterHandlers(services, typeof(DependencyInjection).Assembly);
 

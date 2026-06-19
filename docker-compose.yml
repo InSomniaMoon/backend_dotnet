@@ -9,3 +9,8 @@ services:
       ConnectionStrings__DefaultConnection: Host=host.docker.internal;Port=5432;Database=matos;Username=webdev;Password=password
     ports:
       - "8080:8080"
+    volumes:
+      - uploads_data:/app/wwwroot/uploads
+
+volumes:
+  uploads_data:
