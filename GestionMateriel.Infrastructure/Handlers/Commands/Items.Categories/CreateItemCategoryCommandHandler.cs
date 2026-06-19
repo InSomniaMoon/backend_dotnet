@@ -13,6 +13,8 @@ public class CreateItemCategoryCommandHandler(GestionMaterielDbContext db, IMapp
     public async Task<ItemCategoryResponse> Handle(CreateItemCategoryCommand command, CancellationToken cancellationToken)
     {
         var category = mapper.Map<ItemCategory>(command.Request);
+        category.StructureId = command.StructureId;
+        category.CodeStructure = command.CodeStructure;
         await db.ItemCategories.AddAsync(category, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return mapper.Map<ItemCategoryResponse>(category);
