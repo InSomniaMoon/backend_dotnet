@@ -23,8 +23,10 @@ public class StructuresController(
     public async Task<ActionResult<StructureWithChildrenResponse>> GetCurrentStructureWithChildren(
         CancellationToken cancellationToken)
     {
+        var structureId = User.Claims.FirstOrDefault(c => c.Type == "structureId")?.Value!;
+
         // Implementation for retrieving structures
-        return Ok(await getCurrentStructureWithChildren.Handle(new GetCurrentStructureWithChildrenQuery(1),
+        return Ok(await getCurrentStructureWithChildren.Handle(new GetCurrentStructureWithChildrenQuery(int.Parse(structureId)),
             cancellationToken));
     }
 

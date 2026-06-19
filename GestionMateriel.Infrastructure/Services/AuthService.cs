@@ -18,12 +18,14 @@ public class AuthService(
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
         var user = await db.Users
             .AsNoTracking()
             .AsSplitQuery()
             .Include(u => u.UserStructures)
             .ThenInclude(us => us.Structure)
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email.Trim().Equals(normalizedEmail, StringComparison.CurrentCultureIgnoreCase), cancellationToken);
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             return null;
@@ -34,14 +36,16 @@ public class AuthService(
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request,
         CancellationToken cancellationToken = default)
     {
-        if (await db.Users.AnyAsync(u => u.Email == request.Email, cancellationToken))
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
+        if (await db.Users.AnyAsync(u => u.Email.Trim().Equals(normalizedEmail, StringComparison.CurrentCultureIgnoreCase), cancellationToken))
             throw new InvalidOperationException("An account already exists with this email.");
 
         var user = new User
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
-            Email = request.Email,
+            Email = normalizedEmail,
             Phone = request.Phone,
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = RoleEnum.User
@@ -118,5 +122,24 @@ public class AuthService(
                 })
             ]
         };
+    }
+
+    public async Task<AuthResponse?> SelectStructureAsync(int userId, int structureId, SelectStructureRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await db.UserStructures
+            .IgnoreQueryFilters()
+            .AsSplitQuery()
+            .AsNoTracking()
+            .Include(us => us.Structure)
+            .Include(us => us.User)
+            .Where(us => us.UserId == userId)
+            .Where(us => us.StructureId == structureId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null)
+            return null;
+
+        return await BuildAuthResponseAsync(user.User, user.Structure, cancellationToken);
     }
 }

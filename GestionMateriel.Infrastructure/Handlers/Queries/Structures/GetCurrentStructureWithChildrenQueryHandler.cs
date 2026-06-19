@@ -18,13 +18,7 @@ public class GetCurrentStructureWithChildrenQueryHandler(
         var structure =
             await db.Structures
                 .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.Id == request.StructureId, cancellationToken);
-
-        if (structure == null)
-        {
-            throw new KeyNotFoundException($"Structure with ID {request.StructureId} not found.");
-        }
-
+                .FirstOrDefaultAsync(s => s.Id == request.StructureId, cancellationToken) ?? throw new KeyNotFoundException($"Structure with ID {request.StructureId} not found.");
         var structureMask = structure.Type.ComputeCodeStructureMask(
             structure.CodeStructure);
 

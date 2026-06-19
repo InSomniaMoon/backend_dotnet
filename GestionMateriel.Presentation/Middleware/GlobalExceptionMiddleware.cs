@@ -23,6 +23,12 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
             logger.LogWarning(ex, "Accès non autorisé");
             await WriteErrorAsync(context, StatusCodes.Status401Unauthorized, "Accès non autorisé.");
         }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Ressource non trouvée");
+            await WriteErrorAsync(context, StatusCodes.Status404NotFound, "Ressource non trouvée.", ex.Message);
+        }
+
         catch (Exception ex)
         {
             logger.LogError(ex, "Exception non gérée");

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using GestionMateriel.Application.DTOs.Requests;
 using GestionMateriel.Application.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,19 @@ public class AuthController(IAuthService authService) : ControllerBase
         if (response is null)
         {
             return Unauthorized(new { message = "Refresh token is invalid or expired." });
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("select-structure/{structureId:int}")]
+    public async Task<IActionResult> SelectStructure(int structureId, [FromBody] SelectStructureRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var response = await authService.SelectStructureAsync(int.Parse(userId!), structureId, request, cancellationToken);
+        if (response is null)
+        {
+            return Unauthorized(new { message = "Invalid structure selection." });
         }
 
         return Ok(response);

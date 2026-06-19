@@ -45,3 +45,10 @@ public class RefreshTokenRequest
     [Required]
     public string RefreshToken { get; set; } = string.Empty;
 }
+
+public class SelectStructureRequest
+{
+    [Required]
+    public string RefreshToken { get; set; } = string.Empty;
+
+}
