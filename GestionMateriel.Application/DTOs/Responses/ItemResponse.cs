@@ -12,6 +12,6 @@ public class ItemResponse
     public int UsableStock { get; set; }
     public string State { get; set; } = string.Empty;
     public DateTime? DateOfBuy { get; set; }
-    public string? ImagePath { get; set; }
+    public string? Image { get; set; }
     public ItemCategoryResponse? Category { get; set; } = null!;
 }

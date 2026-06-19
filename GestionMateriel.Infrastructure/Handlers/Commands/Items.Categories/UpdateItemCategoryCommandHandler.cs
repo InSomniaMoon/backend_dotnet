@@ -9,10 +9,11 @@ namespace GestionMateriel.Infrastructure.Handlers.Commands.Items.Categories;
 public class UpdateItemCategoryCommandHandler(GestionMaterielDbContext db, IMapper mapper)
     : IRequestHandler<UpdateItemCategoryCommand, ItemCategoryResponse?>
 {
-    public async Task<ItemCategoryResponse?> Handle(UpdateItemCategoryCommand command, CancellationToken cancellationToken)
+    public async Task<ItemCategoryResponse?> Handle(UpdateItemCategoryCommand command,
+        CancellationToken cancellationToken)
     {
         var category = await db.ItemCategories.FindAsync([command.Id], cancellationToken);
-        if (category is null) return null;
+        if (category is null) throw new KeyNotFoundException($"Item category with ID {command.Id} not found.");
 
         mapper.Map(command.Request, category);
         await db.SaveChangesAsync(cancellationToken);

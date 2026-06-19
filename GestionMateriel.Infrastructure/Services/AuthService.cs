@@ -22,7 +22,7 @@ public class AuthService(
             .AsNoTracking()
             .AsSplitQuery()
             .Include(u => u.UserStructures)
-                .ThenInclude(us => us.Structure)
+            .ThenInclude(us => us.Structure)
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
@@ -31,7 +31,8 @@ public class AuthService(
         return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure, cancellationToken);
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request,
+        CancellationToken cancellationToken = default)
     {
         if (await db.Users.AnyAsync(u => u.Email == request.Email, cancellationToken))
             throw new InvalidOperationException("An account already exists with this email.");
@@ -52,12 +53,13 @@ public class AuthService(
         return await BuildAuthResponseAsync(user, null, cancellationToken);
     }
 
-    public async Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest request,
+        CancellationToken cancellationToken = default)
     {
         var storedToken = await db.RefreshTokens
             .Include(rt => rt.User)
-                .ThenInclude(u => u.UserStructures)
-                .ThenInclude(us => us.Structure)
+            .ThenInclude(u => u.UserStructures)
+            .ThenInclude(us => us.Structure)
             .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken, cancellationToken);
 
         if (storedToken is null || storedToken.ExpiresAt <= DateTime.UtcNow)
@@ -72,7 +74,8 @@ public class AuthService(
         return await BuildAuthResponseAsync(user, structure, cancellationToken);
     }
 
-    private async Task<AuthResponse> BuildAuthResponseAsync(User user, Structure? selectedStructure, CancellationToken cancellationToken = default)
+    private async Task<AuthResponse> BuildAuthResponseAsync(User user, Structure? selectedStructure,
+        CancellationToken cancellationToken = default)
     {
         var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user, selectedStructure);
         var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
@@ -99,18 +102,21 @@ public class AuthService(
                 Phone = user.Phone,
                 Role = user.Role.ToString()
             },
-            Structures = [.. user.UserStructures.Select(s => new StructureWithRoleResponse
-            {
-                Id = s.StructureId,
-                Name = s.Structure.Name,
-                CodeStructure = s.Structure.CodeStructure,
-                NomStructure = s.Structure.NomStructure,
-                Type = s.Structure.Type.ToString(),
-                ParentCode = s.Structure.ParentCode,
-                Color = s.Structure.Color,
-                ImagePath = s.Structure.Image,
-                Role = s.Role.ToString()
-            })]
+            Structures =
+            [
+                .. user.UserStructures.Select(s => new StructureWithRoleResponse
+                {
+                    Id = s.StructureId,
+                    Name = s.Structure.Name,
+                    CodeStructure = s.Structure.CodeStructure,
+                    NomStructure = s.Structure.NomStructure,
+                    Type = s.Structure.Type.ToString(),
+                    ParentCode = s.Structure.ParentCode,
+                    Color = s.Structure.Color,
+                    Image = s.Structure.Image,
+                    Role = s.Role.ToString()
+                })
+            ]
         };
     }
 }

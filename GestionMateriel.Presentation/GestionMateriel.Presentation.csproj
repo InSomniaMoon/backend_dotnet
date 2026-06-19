@@ -31,4 +31,8 @@
       Include="..\GestionMateriel.Infrastructure\GestionMateriel.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Watch Remove="wwwroot/uploads/**" />
+  </ItemGroup>
+
 </Project>

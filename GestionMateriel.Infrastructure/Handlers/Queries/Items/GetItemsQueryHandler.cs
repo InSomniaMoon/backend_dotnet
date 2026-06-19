@@ -16,10 +16,12 @@ public class GetItemsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
         CancellationToken cancellationToken)
     {
         var query = db.Items
-            .Include(i => i.Category)
-            .Include(i => i.Issues.Where(ii => ii.Status == IssueStatusEnum.Open))
-            .Where(i => string.IsNullOrEmpty(request.Q) ||
-                        i.Name.Contains(request.Q, StringComparison.OrdinalIgnoreCase));
+                .AsNoTracking()
+                .Include(i => i.Category)
+                .Include(i => i.Issues.Where(ii => ii.Status == IssueStatusEnum.Open))
+                .Where(i => string.IsNullOrEmpty(request.Q) ||
+                            i.Name.Contains(request.Q, StringComparison.OrdinalIgnoreCase))
+            ;
 
         var total = await query.CountAsync(cancellationToken);
 

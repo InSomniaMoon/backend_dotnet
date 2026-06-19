@@ -6,6 +6,7 @@ using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Infrastructure;
 using GestionMateriel.Presentation.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
@@ -28,7 +29,7 @@ builder.Services
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        // options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     })
     .ConfigureApiBehaviorOptions(options =>
     {
@@ -60,7 +61,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]
-    ?? throw new InvalidOperationException("JwtSettings:SecretKey is missing.");
+                ?? throw new InvalidOperationException("JwtSettings:SecretKey is missing.");
 var key = Encoding.ASCII.GetBytes(secretKey);
 
 builder.Services
@@ -95,6 +96,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+var uploadsPhysicalPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
+Directory.CreateDirectory(uploadsPhysicalPath);
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
@@ -106,6 +109,11 @@ app.UseGlobalExceptionMiddleware();
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPhysicalPath),
+    RequestPath = "/api/uploads"
+});
 app.UseAuthentication();
 app.UseTenantContextMiddleware();
 app.UseAuthorization();

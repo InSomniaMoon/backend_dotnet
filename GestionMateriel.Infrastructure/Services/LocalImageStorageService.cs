@@ -1,6 +1,8 @@
 using GestionMateriel.Application.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace GestionMateriel.Infrastructure.Services;
 
@@ -45,6 +47,12 @@ public sealed class LocalImageStorageService(
 
         try
         {
+            await using var sourceBuffer = await ReadToMemoryWithSizeLimitAsync(fileStream, maxSizeInBytes, cancellationToken);
+            sourceBuffer.Position = 0;
+
+            using var image = await Image.LoadAsync(sourceBuffer, cancellationToken);
+            image.Mutate(x => x.Resize(32, 32));
+
             await using var destinationStream = new FileStream(
                 physicalPath,
                 FileMode.Create,
@@ -53,7 +61,7 @@ public sealed class LocalImageStorageService(
                 bufferSize: 81920,
                 useAsync: true);
 
-            await CopyWithSizeLimitAsync(fileStream, destinationStream, maxSizeInBytes, cancellationToken);
+            await SaveByExtensionAsync(image, extension, destinationStream, cancellationToken);
         }
         catch
         {
@@ -68,11 +76,12 @@ public sealed class LocalImageStorageService(
         return $"/uploads/{safeImageType}/{storedFileName}";
     }
 
-    private static async Task CopyWithSizeLimitAsync(Stream source, Stream destination, long maxSizeInBytes,
+    private static async Task<MemoryStream> ReadToMemoryWithSizeLimitAsync(Stream source, long maxSizeInBytes,
         CancellationToken cancellationToken)
     {
         var totalRead = 0L;
         var buffer = new byte[81920];
+        var destination = new MemoryStream();
 
         while (true)
         {
@@ -86,5 +95,22 @@ public sealed class LocalImageStorageService(
 
             await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
         }
+
+        destination.Position = 0;
+        return destination;
+    }
+
+    private static Task SaveByExtensionAsync(Image image, string extension, Stream destination,
+        CancellationToken cancellationToken)
+    {
+        var normalizedExtension = extension.ToLowerInvariant();
+
+        return normalizedExtension switch
+        {
+            ".jpg" or ".jpeg" => image.SaveAsJpegAsync(destination, cancellationToken),
+            ".png" => image.SaveAsPngAsync(destination, cancellationToken),
+            ".gif" => image.SaveAsGifAsync(destination, cancellationToken),
+            _ => throw new InvalidOperationException("Unsupported image extension.")
+        };
     }
 }

@@ -11,7 +11,7 @@ public class StructureResponse
     public string Type { get; set; } = string.Empty;
     public string? ParentCode { get; set; }
     public string? Color { get; set; }
-    public string? ImagePath { get; set; }
+    public string? Image { get; set; }
 }
 
 public class StructureWithRoleResponse : StructureResponse

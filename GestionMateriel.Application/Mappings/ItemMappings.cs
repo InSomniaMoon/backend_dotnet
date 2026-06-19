@@ -17,7 +17,7 @@ public static class ItemMappings
             Usable = item.Usable,
             Stock = item.Stock,
             DateOfBuy = item.DateOfBuy,
-            ImagePath = item.Image,
+            Image = item.Image,
             State = item.State.ToString(),
             UsableStock = item.UsableStock,
             Category = new ItemCategoryResponse
