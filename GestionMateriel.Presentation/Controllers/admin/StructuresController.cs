@@ -1,7 +1,9 @@
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Requests.Structures;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.DTOs.Responses.Structures;
+using GestionMateriel.Application.Features.Structures.Commands;
 using GestionMateriel.Application.Features.Structures.Queries;
 using GestionMateriel.Application.Messaging;
 using Microsoft.AspNetCore.Mvc;
@@ -37,5 +39,16 @@ public class StructuresController(
                 request.OrderBy),
             cancellationToken);
         return Ok(result);
+    }
+
+    [HttpPatch("{structureId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateStructure(int structureId, [FromBody] UpdateStructureRequest request,
+        IRequestHandler<UpdateStructureCommand, StructureResponse?> updateStructure,
+        CancellationToken cancellationToken)
+    {
+        var result = await updateStructure.Handle(new UpdateStructureCommand(structureId, request.Color!, request.Name, request.Members), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
     }
 }

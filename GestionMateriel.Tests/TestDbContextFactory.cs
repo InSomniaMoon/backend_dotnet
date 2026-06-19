@@ -5,6 +5,8 @@ using GestionMateriel.Infrastructure.Data;
 using GestionMateriel.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -42,6 +44,14 @@ public static class TestHelper
         services.AddLogging();
         services.AddAutoMapper(cfg => cfg.AddMaps(typeof(ApplicationAssemblyMarker).Assembly));
         return services.BuildServiceProvider().GetRequiredService<IMapper>();
+    }
+
+    public static ILogger<T> CreateLogger<T>() where T : class
+    {
+        var services = new ServiceCollection();
+        services.AddLogging(builder => builder.AddProvider(NullLoggerProvider.Instance));
+        var serviceProvider = services.BuildServiceProvider();
+        return serviceProvider.GetRequiredService<ILogger<T>>();
     }
 
     // Skips tenant query filters — InMemory doesn't short-circuit || in expression trees

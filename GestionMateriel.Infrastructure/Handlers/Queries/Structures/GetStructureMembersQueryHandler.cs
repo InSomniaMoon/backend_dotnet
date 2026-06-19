@@ -1,7 +1,7 @@
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.Structures.Queries;
+using GestionMateriel.Application.Messaging;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +21,10 @@ public class GetStructureMembersQueryHandler(GestionMaterielDbContext db)
             .Select(s => new { Code = s.CodeStructure, s.Type })
             .FirstOrDefaultAsync(cancellationToken);
 
+        if (structure is null)
+        {
+            throw new KeyNotFoundException($"Structure avec l'id {query.StructureId} inexistante.");
+        }
 
         var usersQuery = db.Users
             .AsNoTracking()

@@ -14,8 +14,8 @@ public class UpdateItemCommandHandlerTests
         db.Items.Add(new Item { Id = 1, Name = "Old", CategoryId = 1, StructureId = 1, Stock = 1, Usable = true });
         await db.SaveChangesAsync();
 
-        var handler = new UpdateItemCommandHandler(db, TestHelper.CreateMapper());
-        var result = await handler.Handle(new UpdateItemCommand(1, new UpdateItemRequest { Name = "New", Stock = 5 }), CancellationToken.None);
+        var handler = new UpdateItemCommandHandler(db, TestHelper.CreateMapper(), TestHelper.CreateLogger<UpdateItemCommandHandler>());
+        var result = await handler.Handle(new UpdateItemCommand(1, new UpdateItemRequest { Name = "New", Stock = 5, CategoryId = 1 }), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal("New", result!.Name);
@@ -25,7 +25,7 @@ public class UpdateItemCommandHandlerTests
     public async Task Handle_Should_Return_Null_When_Not_Found()
     {
         using var db = TestHelper.CreateDbContext();
-        var handler = new UpdateItemCommandHandler(db, TestHelper.CreateMapper());
+        var handler = new UpdateItemCommandHandler(db, TestHelper.CreateMapper(), TestHelper.CreateLogger<UpdateItemCommandHandler>());
         var result = await handler.Handle(new UpdateItemCommand(99, new UpdateItemRequest { Name = "X" }), CancellationToken.None);
         Assert.Null(result);
     }

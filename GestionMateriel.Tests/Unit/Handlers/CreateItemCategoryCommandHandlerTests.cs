@@ -11,7 +11,7 @@ public class CreateItemCategoryCommandHandlerTests
     {
         using var db = TestHelper.CreateDbContext();
         var handler = new CreateItemCategoryCommandHandler(db, TestHelper.CreateMapper());
-        var result = await handler.Handle(new CreateItemCategoryCommand(new CreateItemCategoryRequest { Name = "Tentes" }), CancellationToken.None);
+        var result = await handler.Handle(new CreateItemCategoryCommand(new CreateItemCategoryRequest { Name = "Tentes" }, 1, "ABCDE123"), CancellationToken.None);
         Assert.Equal("Tentes", result.Name);
         Assert.Equal(1, db.ItemCategories.Count());
     }

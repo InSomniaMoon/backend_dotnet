@@ -13,7 +13,7 @@ public class GetItemByIdQueryHandlerTests
         db.Items.Add(new Item { Id = 1, Name = "Tente", CategoryId = 1, StructureId = 1, Stock = 2, Usable = true });
         await db.SaveChangesAsync();
 
-        var handler = new GetItemByIdQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetItemByIdQueryHandler(db);
         var result = await handler.Handle(new GetItemByIdQuery(1), CancellationToken.None);
 
         Assert.NotNull(result);
@@ -24,7 +24,7 @@ public class GetItemByIdQueryHandlerTests
     public async Task Handle_Should_Return_Null_When_Not_Found()
     {
         await using var db = TestHelper.CreateDbContext();
-        var handler = new GetItemByIdQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetItemByIdQueryHandler(db);
         var result = await handler.Handle(new GetItemByIdQuery(99), CancellationToken.None);
         Assert.Null(result);
     }

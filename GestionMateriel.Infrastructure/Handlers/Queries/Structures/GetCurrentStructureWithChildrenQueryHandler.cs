@@ -10,8 +10,7 @@ namespace GestionMateriel.Infrastructure.Handlers.Queries.Structures;
 public class GetCurrentStructureWithChildrenQueryHandler(
     GestionMaterielDbContext db
 )
-    : IRequestHandler<GetCurrentStructureWithChildrenQuery,
-        StructureWithChildrenResponse>
+    : IRequestHandler<GetCurrentStructureWithChildrenQuery, StructureWithChildrenResponse>
 {
     public async Task<StructureWithChildrenResponse> Handle(GetCurrentStructureWithChildrenQuery request,
         CancellationToken cancellationToken)
@@ -39,6 +38,9 @@ public class GetCurrentStructureWithChildrenQueryHandler(
                 CodeStructure = s.CodeStructure,
                 NomStructure = s.NomStructure,
                 Type = s.Type.Value,
+                Color = s.Color,
+                Image = s.Image,
+                ParentCode = s.ParentCode,
                 Members = s.UserStructures.Select(m => new UserResponse
                 {
                     Id = m.User.Id,
