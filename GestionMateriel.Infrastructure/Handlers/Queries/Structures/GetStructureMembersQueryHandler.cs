@@ -44,10 +44,10 @@ public class GetStructureMembersQueryHandler(GestionMaterielDbContext db)
 
         usersQuery = query.OrderBy switch
         {
-            "firstname" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.FirstName),
-            "firstname" => usersQuery.OrderBy(u => u.FirstName),
-            "lastname" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.LastName),
-            "lastname" => usersQuery.OrderBy(u => u.LastName),
+            "firstName" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.FirstName),
+            "firstName" => usersQuery.OrderBy(u => u.FirstName),
+            "lastName" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.LastName),
+            "lastName" => usersQuery.OrderBy(u => u.LastName),
             "email" when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.Email),
             "email" => usersQuery.OrderBy(u => u.Email),
             _ when query.OrderDir == "desc" => usersQuery.OrderByDescending(u => u.Id),

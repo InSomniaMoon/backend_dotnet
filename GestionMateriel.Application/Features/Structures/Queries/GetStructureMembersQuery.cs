@@ -7,9 +7,9 @@ public record GetStructureMembersQuery(
     int PageSize = 50,
     string? Q = null,
     string? OrderDir = "asc",
-    string? OrderBy = "lastname")
+    string? OrderBy = "lastName")
 {
-    public string[] ValidOrderByFields { get; } = ["firstname", "lastname", "email", "role"];
+    public string[] ValidOrderByFields { get; } = ["firstName", "lastName", "email", "role"];
 
     public bool Validate()
     {
