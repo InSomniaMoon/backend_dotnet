@@ -12,6 +12,11 @@ public class CreateItemCommandHandler(GestionMaterielDbContext db, IMapper mappe
     public async Task<ItemResponse> Handle(CreateItemCommand command, CancellationToken cancellationToken)
     {
         var item = mapper.Map<Domain.Entities.Item>(command.Request);
+
+        item.CreatedAt = DateTime.UtcNow;
+        item.UpdatedAt = DateTime.UtcNow;
+
+
         await db.Items.AddAsync(item, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return mapper.Map<ItemResponse>(item);

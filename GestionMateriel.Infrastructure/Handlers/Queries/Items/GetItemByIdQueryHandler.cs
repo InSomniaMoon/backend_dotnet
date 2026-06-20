@@ -11,21 +11,19 @@ public class GetItemByIdQueryHandler(GestionMaterielDbContext db)
 {
     public async Task<ItemResponse?> Handle(GetItemByIdQuery query, CancellationToken cancellationToken)
     {
-        var item = await db.Items.AsNoTracking().FirstOrDefaultAsync(i => i.Id == query.Id, cancellationToken);
-        return item is null
-            ? null
-            : new ItemResponse
+        var item = await db.Items.AsNoTracking().Select(item => new ItemResponse
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Description = item.Description,
+            Image = item.Image,
+            CategoryId = item.CategoryId,
+            Category = new ItemCategoryResponse()
             {
-                Id = item.Id,
-                Name = item.Name,
-                Description = item.Description,
-                Image = item.Image,
-                CategoryId = item.CategoryId,
-                Category = new ItemCategoryResponse()
-                {
-                    Id = item.Category.Id,
-                    Name = item.Category.Name
-                }
-            };
+                Id = item.Category.Id,
+                Name = item.Category.Name
+            }
+        }).FirstOrDefaultAsync(i => i.Id == query.Id, cancellationToken);
+        return item;
     }
 }

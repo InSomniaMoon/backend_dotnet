@@ -22,7 +22,8 @@ public class ItemProfile : Profile
             .ForMember(dest => dest.EventSubscriptions, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
+            .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
+            .ForMember(dest => dest.UsableStock, opt => opt.MapFrom(src => src.Stock));
 
         CreateMap<UpdateItemRequest, Item>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
