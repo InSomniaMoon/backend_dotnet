@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GestionMateriel.Application.DTOs.Requests.Events;
 
-public class UpdateEventRequest
+public record UpdateEventRequest
 {
     [Required]
     [MaxLength(255)]
@@ -22,4 +22,15 @@ public class UpdateEventRequest
 
     [MaxLength(1000)]
     public string? Comment { get; set; }
+
+    public List<CreateUpdateEventItemRequest> Items { get; set; } = [];
+
+    public record CreateUpdateEventItemRequest
+    {
+        [Range(1, int.MaxValue)]
+        public int Id { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int Quantity { get; set; }
+    }
 }

@@ -61,7 +61,7 @@ public class EventsController(
         return CreatedAtAction(nameof(GetEventById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPatch("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventRequest request,
