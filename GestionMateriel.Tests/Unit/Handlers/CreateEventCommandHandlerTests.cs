@@ -18,7 +18,7 @@ public class CreateEventCommandHandlerTests
             StartDate = start,
             EndDate = start.AddDays(7),
             StructureId = 1
-        }), CancellationToken.None);
+        }, 1), CancellationToken.None);
         Assert.Equal("Camp été", result.Name);
         Assert.Equal(1, db.Events.Count());
     }
@@ -36,6 +36,6 @@ public class CreateEventCommandHandlerTests
                 StartDate = start,
                 EndDate = start.AddDays(-1),
                 StructureId = 1
-            }), CancellationToken.None));
+            }, 1), CancellationToken.None));
     }
 }

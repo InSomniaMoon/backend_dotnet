@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Handlers.Commands.Events;
 
-public class AddEventSubscriptionCommandHandler(GestionMaterielDbContext db, IMapper mapper)
+public class AddEventSubscriptionCommandHandler(GestionMaterielDbContext db)
     : IRequestHandler<AddEventSubscriptionCommand, EventSubscriptionResponse?>
 {
     public async Task<EventSubscriptionResponse?> Handle(AddEventSubscriptionCommand command, CancellationToken cancellationToken)
@@ -27,7 +27,13 @@ public class AddEventSubscriptionCommandHandler(GestionMaterielDbContext db, IMa
         {
             existing.Quantity = command.Request.Quantity;
             await db.SaveChangesAsync(cancellationToken);
-            return mapper.Map<EventSubscriptionResponse>(existing);
+            return new EventSubscriptionResponse()
+            {
+                EventId = existing.EventId,
+                ItemId = existing.ItemId,
+                Quantity = existing.Quantity
+            };
+
         }
 
         var subscription = new EventSubscription
@@ -40,6 +46,11 @@ public class AddEventSubscriptionCommandHandler(GestionMaterielDbContext db, IMa
         await db.EventSubscriptions.AddAsync(subscription, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        return mapper.Map<EventSubscriptionResponse>(subscription);
+        return new EventSubscriptionResponse()
+        {
+            EventId = subscription.EventId,
+            ItemId = subscription.ItemId,
+            Quantity = subscription.Quantity,
+        };
     }
 }

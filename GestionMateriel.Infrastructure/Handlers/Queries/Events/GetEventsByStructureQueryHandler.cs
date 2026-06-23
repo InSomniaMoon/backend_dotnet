@@ -15,7 +15,8 @@ public class GetEventsByStructureQueryHandler(GestionMaterielDbContext db, IMapp
     {
         var events = await db.Events
             .AsNoTracking()
-            .Where(e => e.StructureId == query.StructureId)
+            .Where(e => e.StartDate >= query.StartDate || e.EndDate >= query.StartDate)
+            .Where(e => e.StartDate <= query.EndDate || e.EndDate <= query.EndDate)
             .OrderByDescending(e => e.StartDate)
             .ToListAsync(cancellationToken);
         return events.Select(mapper.Map<EventResponse>);

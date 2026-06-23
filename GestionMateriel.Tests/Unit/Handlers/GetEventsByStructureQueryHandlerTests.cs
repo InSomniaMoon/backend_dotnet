@@ -17,7 +17,7 @@ public class GetEventsByStructureQueryHandlerTests
         );
         await db.SaveChangesAsync();
         var handler = new GetEventsByStructureQueryHandler(db, TestHelper.CreateMapper());
-        var result = await handler.Handle(new GetEventsByStructureQuery(1), CancellationToken.None);
+        var result = await handler.Handle(new GetEventsByStructureQuery(DateTime.Now, DateTime.Now.AddDays(1)), CancellationToken.None);
         Assert.Single(result);
     }
 }

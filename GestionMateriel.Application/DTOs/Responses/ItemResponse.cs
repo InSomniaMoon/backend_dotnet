@@ -15,3 +15,14 @@ public class ItemResponse
     public string? Image { get; set; }
     public ItemCategoryResponse? Category { get; set; } = null!;
 }
+
+
+public class ItemWithRestResponse : ItemResponse
+{
+    public int Rest { get; set; }
+}
+
+public class ItemWithQuantityResponse : ItemResponse
+{
+    public int Quantity { get; set; }
+}

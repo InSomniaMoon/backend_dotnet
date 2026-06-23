@@ -11,7 +11,9 @@ public class ItemProfile : Profile
     {
         CreateMap<Item, ItemResponse>()
             .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
-            .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
+            .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
+            .ForMember(dest => dest.UsableStock, opt => opt.MapFrom(src => src.UsableStock))
+            .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock));
 
         CreateMap<CreateItemRequest, Item>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())

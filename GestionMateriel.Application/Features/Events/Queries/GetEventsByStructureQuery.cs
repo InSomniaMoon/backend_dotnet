@@ -1,3 +1,3 @@
 namespace GestionMateriel.Application.Features.Events.Queries;
 
-public record GetEventsByStructureQuery(int StructureId);
+public record GetEventsByStructureQuery(DateTime StartDate, DateTime EndDate);

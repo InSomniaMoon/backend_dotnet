@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.DTOs.Responses;
@@ -29,7 +30,7 @@ public class EventsController(
         CancellationToken cancellationToken)
     {
         var events =
-            await getByStructure.Handle(new GetEventsByStructureQuery(request.StructureId ?? 0), cancellationToken);
+            await getByStructure.Handle(new GetEventsByStructureQuery(request.StartDate, request.EndDate), cancellationToken);
         return Ok(events);
     }
 
@@ -54,7 +55,9 @@ public class EventsController(
     public async Task<IActionResult> CreateEvent([FromBody] CreateEventRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await create.Handle(new CreateEventCommand(request), cancellationToken);
+
+        var UserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var result = await create.Handle(new CreateEventCommand(request, int.TryParse(UserId, out var userId) ? userId : 0), cancellationToken);
         return CreatedAtAction(nameof(GetEventById), new { id = result.Id }, result);
     }
 

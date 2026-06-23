@@ -22,4 +22,8 @@ public class CreateEventRequest
 
     [MaxLength(1000)]
     public string? Comment { get; set; }
+
+    public List<EventSubscriptionRequest> Items { get; set; } = [];
+
+    public sealed record EventSubscriptionRequest(int Id, int Quantity);
 }

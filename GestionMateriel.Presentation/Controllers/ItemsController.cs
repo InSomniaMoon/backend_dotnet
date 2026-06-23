@@ -5,8 +5,9 @@ using GestionMateriel.Application.DTOs.Requests.Items;
 using GestionMateriel.Application.DTOs.Requests.Items.Issues;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Features.Items.Commands;
-using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.Items.Queries;
+using GestionMateriel.Application.Features.Items.Requests;
+using GestionMateriel.Application.Messaging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,8 @@ public class ItemsController(
     IRequestHandler<CreateItemCommand, ItemResponse> create,
     IRequestHandler<CreateItemIssueCommand, ItemIssueResponse?> createItemIssue,
     IRequestHandler<UpdateItemCommand, ItemResponse?> update,
-    IRequestHandler<DeleteItemCommand, bool> delete
+    IRequestHandler<DeleteItemCommand, bool> delete,
+    IRequestHandler<GetAvailableItemsForDatesQuery, PaginatedResponse<ItemWithRestResponse>> getAvailableItemsForDates
 ) : ControllerBase
 {
     [HttpGet]
@@ -31,6 +33,17 @@ public class ItemsController(
     {
         var query = new GetItemsQuery(request.Page, request.Size, request.Q, request.OrderDir, request.OrderBy);
         var result = await getAll.Handle(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("available")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAvailableItemsForDates([FromQuery] GetAvailableItemsForDatesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetAvailableItemsForDatesQuery(request.Page, request.Size, request.OrderBy, request.OrderDir, request.StartDate, request.EndDate, request.Q, request.ForEventId, request.CategoryId);
+        query.Validate();
+        var result = await getAvailableItemsForDates.Handle(query, cancellationToken);
         return Ok(result);
     }
 

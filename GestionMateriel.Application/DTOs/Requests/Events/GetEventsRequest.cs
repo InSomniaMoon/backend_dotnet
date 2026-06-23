@@ -4,8 +4,9 @@ namespace GestionMateriel.Application.DTOs.Requests.Events;
 
 public class GetEventsRequest
 {
-    [Range(1, int.MaxValue)]
-    public int? StructureId { get; set; }
+    [Required]
+    public DateTime StartDate { get; set; }
 
-    public bool ActualOnly { get; set; }
+    [Required]
+    public DateTime EndDate { get; set; }
 }
