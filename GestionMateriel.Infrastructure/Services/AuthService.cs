@@ -18,14 +18,12 @@ public class AuthService(
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-
         var user = await db.Users
             .AsNoTracking()
             .AsSplitQuery()
             .Include(u => u.UserStructures)
             .ThenInclude(us => us.Structure)
-            .FirstOrDefaultAsync(u => u.Email.Trim().Equals(normalizedEmail, StringComparison.CurrentCultureIgnoreCase), cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             return null;
@@ -36,16 +34,14 @@ public class AuthService(
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request,
         CancellationToken cancellationToken = default)
     {
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-
-        if (await db.Users.AnyAsync(u => u.Email.Trim().Equals(normalizedEmail, StringComparison.CurrentCultureIgnoreCase), cancellationToken))
+        if (await db.Users.AnyAsync(u => u.Email == request.Email, cancellationToken))
             throw new InvalidOperationException("An account already exists with this email.");
 
         var user = new User
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
-            Email = normalizedEmail,
+            Email = request.Email,
             Phone = request.Phone,
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = RoleEnum.User
