@@ -12,18 +12,30 @@ public class GetActualEventsQueryHandlerTests
     {
         await using var db = TestHelper.CreateDbContext();
         var now = DateTime.UtcNow;
+        db.Structures.Add(new Structure { Id = 1, Name = "GL", CodeStructure = "GL1", Type = Domain.Enums.StructureTypeEnum.Groupe });
         db.Events.AddRange(
             new Event
             {
-                Id = 1, Name = "Future", StructureId = 1, StartDate = now.AddDays(1), EndDate = now.AddDays(5)
+                Id = 1,
+                Name = "Future",
+                StructureId = 1,
+                StartDate = now.AddDays(1),
+                EndDate = now.AddDays(5)
             },
-            new Event { Id = 2, Name = "Past", StructureId = 1, StartDate = now.AddDays(-5), EndDate = now.AddDays(-1) }
+            new Event
+            {
+                Id = 2,
+                Name = "Actual",
+                StructureId = 1,
+                StartDate = now.AddDays(-5),
+                EndDate = now.AddDays(1)
+            }
         );
         await db.SaveChangesAsync();
-        var handler = new GetActualEventsQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetActualEventsQueryHandler(db);
         var result = await handler.Handle(new GetActualEventsQuery(), CancellationToken.None);
         IEnumerable<EventResponse> eventResponses = result as EventResponse[] ?? result.ToArray();
         Assert.Single(eventResponses);
-        Assert.Equal("Future", eventResponses.First().Name);
+        Assert.Equal("Actual", eventResponses.First().Name);
     }
 }

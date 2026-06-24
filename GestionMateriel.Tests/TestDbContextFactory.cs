@@ -38,6 +38,33 @@ public static class TestHelper
         return new NoFilterDbContext(options, tenant.Object, jwtOpts);
     }
 
+    // Use this when the test needs the real tenant query filters (e.g. to verify
+    // structure scoping). Requires every filtered navigation (Structure, Item, ...)
+    // to be non-null, since InMemory doesn't short-circuit || on null navigations.
+    public static GestionMaterielDbContext CreateDbContextWithTenantFilters(string structureMask, string? structureCode = null, int? structureId = null)
+    {
+        var options = new DbContextOptionsBuilder<GestionMaterielDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        var tenant = new Mock<ITenantProvider>();
+        tenant.Setup(t => t.IsResolved).Returns(true);
+        tenant.Setup(t => t.StructureMask).Returns(structureMask);
+        tenant.Setup(t => t.StructureCode).Returns(structureCode ?? structureMask);
+        tenant.Setup(t => t.StructureId).Returns(structureId);
+
+        var jwtOpts = Options.Create(new JwtSettings
+        {
+            SecretKey = "test-secret-key-for-unit-tests",
+            Issuer = "test",
+            Audience = "test",
+            ExpirationMinutes = 60,
+            RefreshTokenExpirationDays = 7
+        });
+
+        return new GestionMaterielDbContext(options, tenant.Object, jwtOpts);
+    }
+
     public static IMapper CreateMapper()
     {
         var services = new ServiceCollection();

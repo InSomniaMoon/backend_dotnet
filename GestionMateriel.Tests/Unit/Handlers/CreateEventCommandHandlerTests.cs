@@ -10,6 +10,9 @@ public class CreateEventCommandHandlerTests
     public async Task Handle_Should_Create_Event()
     {
         using var db = TestHelper.CreateDbContext();
+        db.Structures.Add(new Domain.Entities.Structure { Id = 1, Name = "GL", CodeStructure = "GL1", Type = Domain.Enums.StructureTypeEnum.Groupe });
+        await db.SaveChangesAsync();
+
         var handler = new CreateEventCommandHandler(db, TestHelper.CreateMapper());
         var start = DateTime.UtcNow.AddDays(1);
         var result = await handler.Handle(new CreateEventCommand(new CreateEventRequest

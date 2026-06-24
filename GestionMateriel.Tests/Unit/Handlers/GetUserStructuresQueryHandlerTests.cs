@@ -11,7 +11,7 @@ public class GetUserStructuresQueryHandlerTests
     public async Task Handle_Should_Return_Null_When_User_Not_Found()
     {
         await using var db = TestHelper.CreateDbContext();
-        var handler = new GetUserStructuresQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetUserStructuresQueryHandler(db);
         Assert.Null(await handler.Handle(new GetUserStructuresQuery(99), CancellationToken.None));
     }
 
@@ -20,12 +20,12 @@ public class GetUserStructuresQueryHandlerTests
     {
         await using var db = TestHelper.CreateDbContext();
         db.Users.Add(new User
-            { Id = 1, FirstName = "Alice", LastName = "D", Email = "a@b.com", Password = "x", Role = RoleEnum.User });
+        { Id = 1, FirstName = "Alice", LastName = "D", Email = "a@b.com", Password = "x", Role = RoleEnum.User });
         db.Structures.Add(new Structure
-            { Id = 1, Name = "GL", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
+        { Id = 1, Name = "GL", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
         db.UserStructures.Add(new UserStructure { UserId = 1, StructureId = 1, Role = RoleEnum.User });
         await db.SaveChangesAsync();
-        var handler = new GetUserStructuresQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetUserStructuresQueryHandler(db);
         var result = await handler.Handle(new GetUserStructuresQuery(1), CancellationToken.None);
         Assert.NotNull(result);
     }
