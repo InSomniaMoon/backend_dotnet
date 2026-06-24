@@ -2,14 +2,15 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests.Items;
 using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.ItemIssues.Queries;
 using GestionMateriel.Application.Features.Items.Commands;
+using GestionMateriel.Application.Messaging;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestionMateriel.Presentation.Controllers.Admin;
 
 [ApiController]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 [Route("api/admin/items")]
 public class ItemsController : ControllerBase
 {
@@ -37,6 +38,28 @@ public class ItemsController : ControllerBase
         var result =
             await uploadImage.Handle(new UploadImageCommand(stream, "items", image.FileName), cancellationToken);
         return Created("", result);
+    }
+
+    [HttpPost("import/preview")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> PreviewImportItems([FromForm] IFormFile file,
+        IRequestHandler<PreviewImportItemsCommand, PreviewImportItemsResponse> previewImportItems,
+        CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        await using var stream = file.OpenReadStream();
+
+        var structureId = User.Claims.FirstOrDefault(c => c.Type == "structureId")!.Value!;
+
+        var result =
+            await previewImportItems.Handle(new PreviewImportItemsCommand(stream, file.FileName, int.Parse(structureId), cancellationToken), cancellationToken);
+        return Ok(result);
     }
 
 
