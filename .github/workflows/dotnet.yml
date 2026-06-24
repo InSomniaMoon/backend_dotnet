@@ -20,5 +20,4 @@ jobs:
         run:
           ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /mnt/HDD_Pedro/docker_folders/backend_dotnet
           && git pull && docker-compose up -d --build --remove-orphans
-          && docker-compose exec -T api dotnet ef database update
           "
