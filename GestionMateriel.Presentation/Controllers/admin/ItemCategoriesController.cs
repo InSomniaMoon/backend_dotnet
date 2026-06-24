@@ -1,16 +1,14 @@
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Requests.Categories;
 using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Features.Categories.Queries;
-using GestionMateriel.Application.Features.Items.Queries;
 using GestionMateriel.Application.Messaging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GestionMateriel.Presentation.Admin.Controllers;
+namespace GestionMateriel.Presentation.Controllers.Admin;
 
 [ApiController]
-[Authorize]
+[Authorize("Admin")]
 [Route("api/admin/items/categories")]
 public class ItemCategoriesController(
     IRequestHandler<CreateItemCategoryCommand, ItemCategoryResponse> create,
@@ -23,7 +21,7 @@ public class ItemCategoriesController(
     public async Task<IActionResult> CreateCategory([FromBody] CreateItemCategoryRequest request,
      CancellationToken cancellationToken)
     {
-        // get strcture id from user claims
+        // get structure id from user claims
         var structureIdClaim = User.Claims.FirstOrDefault(c => c.Type == "structureId");
         var codeStructureClaim = User.Claims.FirstOrDefault(c => c.Type == "structureCode");
         var result = await create.Handle(new CreateItemCategoryCommand(request, int.Parse(structureIdClaim!.Value), codeStructureClaim?.Value), cancellationToken);

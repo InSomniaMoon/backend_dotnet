@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using GestionMateriel.Application;
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Infrastructure;
@@ -84,6 +83,12 @@ builder.Services
             ClockSkew = TimeSpan.Zero
         };
     });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Admin", policy =>
+        policy.RequireAuthenticatedUser().RequireRole("admin", "app_admin"))
+    .AddPolicy("AppAdmin", policy =>
+         policy.RequireAuthenticatedUser().RequireRole("app_admin"));
 
 builder.Services.AddCors(options =>
 {

@@ -1,11 +1,13 @@
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Features.ItemIssues.Queries;
 using GestionMateriel.Application.Messaging;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestionMateriel.Presentation.Controllers.Admin;
 
 [ApiController]
+[Authorize("Admin")]
 [Route("api/admin/issues")]
 public class ItemIssueController(
     IRequestHandler<GetOpenItemIssuesQuery, IEnumerable<ItemIssueResponse>> getOpen
