@@ -8,9 +8,24 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=host.docker.internal;Port=5432;Database=matos;Username=webdev;Password=password
     ports:
-      - "8080:8080"
+      - "8082:8080"
     volumes:
-      - uploads_data:/app/wwwroot/uploads
+      - ./uploads_data:/app/wwwroot/uploads
+      - ./logs_data:/app/logs
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
 
-volumes:
-  uploads_data:
+      - traefik.http.routers.back-matos.rule=Host(`matos.pierreleroyer.fr`)
+      - traefik.http.routers.back-matos.entrypoints=websecure
+      - traefik.http.routers.back-matos.tls=true
+      - traefik.http.routers.back-matos.tls.certresolver=tlsresolver
+      - traefik.http.routers.back-matos.priority=1
+
+      - traefik.http.services.back-matos.loadbalancer.server.port=8082
+
+networks:
+  web:
+    external: true
