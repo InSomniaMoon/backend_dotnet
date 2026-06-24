@@ -20,4 +20,5 @@ jobs:
         run:
           ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/gestion_materiel/back_dotnet
           && git pull && docker-compose up -d --build --remove-orphans
+          && docker-compose exec -T api dotnet ef database update
           "
