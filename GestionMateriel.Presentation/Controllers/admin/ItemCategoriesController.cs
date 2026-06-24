@@ -30,7 +30,7 @@ public class ItemCategoriesController(
         return Created("", result);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPatch("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] UpdateItemCategoryRequest request,
