@@ -14,6 +14,7 @@ services:
       - ./logs_data:/app/logs
     networks:
       - web
+      - sail
     labels:
       - traefik.enable=true
       - traefik.docker.network=web
@@ -25,7 +26,36 @@ services:
       - traefik.http.routers.back-matos.priority=1
 
       - traefik.http.services.back-matos.loadbalancer.server.port=8082
+  pgsql:
+    image: postgres:18-alpine
+    ports:
+      - ${FORWARD_DB_PORT:-5432}:5432
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:-secret}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - sail-pgsql:/var/lib/postgresql/data
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -q
+        - -d
+        - ${DB_DATABASE}
+        - -U
+        - ${DB_USERNAME}
+      retries: 3
+      timeout: 5s
 
+volumes:
+  sail-pgsql:
+    driver: local
 networks:
   web:
     external: true
+  sail:
+    driver: bridge
