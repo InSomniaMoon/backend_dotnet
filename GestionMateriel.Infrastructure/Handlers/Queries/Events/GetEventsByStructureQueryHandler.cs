@@ -18,7 +18,17 @@ public class GetEventsByStructureQueryHandler(GestionMaterielDbContext db, IMapp
             .Where(e => e.StartDate >= query.StartDate || e.EndDate >= query.StartDate)
             .Where(e => e.StartDate <= query.EndDate || e.EndDate <= query.EndDate)
             .OrderByDescending(e => e.StartDate)
+            .Select(e => new EventResponse()
+            {
+                Id = e.Id,
+                Name = e.Name,
+                StartDate = e.StartDate,
+                EndDate = e.EndDate,
+                StructureId = e.StructureId,
+                Comment = e.Comment,
+                CreatedById = e.UserId,
+            })
             .ToListAsync(cancellationToken);
-        return events.Select(mapper.Map<EventResponse>);
+        return events;
     }
 }
