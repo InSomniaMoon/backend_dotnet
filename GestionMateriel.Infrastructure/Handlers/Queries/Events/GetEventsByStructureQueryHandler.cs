@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Handlers.Queries.Events;
 
-public class GetEventsByStructureQueryHandler(GestionMaterielDbContext db, IMapper mapper)
+public class GetEventsByStructureQueryHandler(GestionMaterielDbContext db)
     : IRequestHandler<GetEventsByStructureQuery, IEnumerable<EventResponse>>
 {
     public async Task<IEnumerable<EventResponse>> Handle(GetEventsByStructureQuery query,
