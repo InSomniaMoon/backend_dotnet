@@ -5,6 +5,7 @@ using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace GestionMateriel.Infrastructure.Services;
@@ -12,7 +13,8 @@ namespace GestionMateriel.Infrastructure.Services;
 public class AuthService(
     GestionMaterielDbContext db,
     IJwtTokenService jwtTokenService,
-    IOptions<JwtSettings> jwtOptions) : IAuthService
+    IOptions<JwtSettings> jwtOptions,
+    ILogger<AuthService> logger) : IAuthService
 {
     private readonly JwtSettings _jwtSettings = jwtOptions.Value;
 
@@ -25,8 +27,16 @@ public class AuthService(
             .ThenInclude(us => us.Structure)
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
-        if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+        if (user is null)
+        {
+            logger.LogWarning("Login attempt failed for email {Email}: user not found.", request.Email);
             return null;
+        }
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+        {
+            logger.LogWarning("Login attempt failed for email {Email}: incorrect password.", request.Email);
+            return null;
+        }
 
         return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure, cancellationToken);
     }
