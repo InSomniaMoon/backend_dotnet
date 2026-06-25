@@ -18,13 +18,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=web
-
-      - traefik.http.routers.back-matos.rule=Host(`matos.pierreleroyer.fr`)
+      - traefik.http.routers.back-matos.rule=Host(`matos.pierreleroyer.fr`) && PathPrefix(`/api`)
       - traefik.http.routers.back-matos.entrypoints=websecure
       - traefik.http.routers.back-matos.tls=true
       - traefik.http.routers.back-matos.tls.certresolver=tlsresolver
-      - traefik.http.routers.back-matos.priority=1
-
+      - traefik.http.routers.back-matos.priority=2
       - traefik.http.services.back-matos.loadbalancer.server.port=8082
   pgsql:
     image: postgres:17-alpine
