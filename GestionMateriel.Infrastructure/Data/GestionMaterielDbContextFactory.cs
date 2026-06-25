@@ -2,15 +2,18 @@ using System.Text.Json;
 using GestionMateriel.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace GestionMateriel.Infrastructure.Data;
 
-public class GestionMaterielDbContextFactory : IDesignTimeDbContextFactory<GestionMaterielDbContext>
+public class GestionMaterielDbContextFactory(IConfiguration configuration) : IDesignTimeDbContextFactory<GestionMaterielDbContext>
 {
     public GestionMaterielDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<GestionMaterielDbContext>();
+
+
         var connectionString = ResolveConnectionString();
 
         optionsBuilder.UseNpgsql(connectionString);
@@ -27,8 +30,9 @@ public class GestionMaterielDbContextFactory : IDesignTimeDbContextFactory<Gesti
         return new GestionMaterielDbContext(optionsBuilder.Options, tenantProvider, jwtSettings);
     }
 
-    private static string ResolveConnectionString()
+    private string ResolveConnectionString()
     {
+        return configuration.GetConnectionString("DefaultConnection")!;
         var fromEnv = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
         if (!string.IsNullOrWhiteSpace(fromEnv))
         {
