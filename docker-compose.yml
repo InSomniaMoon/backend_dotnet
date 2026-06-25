@@ -23,7 +23,7 @@ services:
       - traefik.http.routers.back-matos.tls=true
       - traefik.http.routers.back-matos.tls.certresolver=tlsresolver
       - traefik.http.routers.back-matos.priority=2
-      - traefik.http.services.back-matos.loadbalancer.server.port=8082
+      - traefik.http.services.back-matos.loadbalancer.server.port=8080
   pgsql:
     image: postgres:17-alpine
     ports:
