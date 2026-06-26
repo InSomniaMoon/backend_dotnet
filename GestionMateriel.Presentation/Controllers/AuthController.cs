@@ -7,7 +7,7 @@ namespace GestionMateriel.Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IPasswordResetService passwordResetService) : ControllerBase
 {
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -64,5 +64,29 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
 
         return Ok(response);
+    }
+
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+    {
+        await passwordResetService.SendResetLinkAsync(request.Email, cancellationToken);
+        return Ok(new { message = "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé." });
+    }
+
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await passwordResetService.ResetPasswordAsync(request, cancellationToken);
+            return Ok(new { message = "Le mot de passe a été réinitialisé avec succès." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

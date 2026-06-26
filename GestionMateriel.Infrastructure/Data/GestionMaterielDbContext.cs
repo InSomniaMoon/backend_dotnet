@@ -32,6 +32,7 @@ public class GestionMaterielDbContext(
     public DbSet<Feature> Features => Set<Feature>();
     public DbSet<FeatureClick> FeatureClicks => Set<FeatureClick>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +51,7 @@ public class GestionMaterielDbContext(
         modelBuilder.ApplyConfiguration(new FeatureConfiguration());
         modelBuilder.ApplyConfiguration(new FeatureClickConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
+        modelBuilder.ApplyConfiguration(new PasswordResetTokenConfiguration());
 
         ApplyTenantQueryFilters(modelBuilder);
     }

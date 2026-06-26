@@ -1,8 +1,7 @@
-using System.Net.Mail;
-using AutoMapper;
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
+using GestionMateriel.Application.Services;
 using GestionMateriel.Domain.Entities;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Data;
@@ -11,7 +10,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GestionMateriel.Infrastructure.Handlers.Commands.Users;
 
 public class CreateUserCommandHandler(
-    GestionMaterielDbContext db
+    GestionMaterielDbContext db,
+    IPasswordResetService passwordResetService
     )
     : IRequestHandler<CreateUserCommand, UserResponse>
 {
@@ -41,7 +41,7 @@ public class CreateUserCommandHandler(
 
         await db.Users.AddAsync(user, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await SendEmailToUser(user, cancellationToken);
+        await passwordResetService.SendResetLinkAsync(user.Email, cancellationToken);
         return new UserResponse
         {
             Id = user.Id,
@@ -51,12 +51,5 @@ public class CreateUserCommandHandler(
             Phone = user.Phone,
             Role = user.Role.Value
         };
-    }
-
-    private static async Task SendEmailToUser(User user, CancellationToken cancellationToken)
-    {
-        await Task.Run(async () =>
-        { }, cancellationToken);
-        // TODO: Implement email sending logic here. For now, we will just simulate the email sending process.
     }
 }
