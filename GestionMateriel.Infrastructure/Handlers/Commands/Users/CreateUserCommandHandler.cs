@@ -11,8 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GestionMateriel.Infrastructure.Handlers.Commands.Users;
 
 public class CreateUserCommandHandler(
-    GestionMaterielDbContext db,
-    SmtpClient smtpClient
+    GestionMaterielDbContext db
     )
     : IRequestHandler<CreateUserCommand, UserResponse>
 {
@@ -54,8 +53,10 @@ public class CreateUserCommandHandler(
         };
     }
 
-    private async Task SendEmailToUser(User user, CancellationToken cancellationToken)
+    private static async Task SendEmailToUser(User user, CancellationToken cancellationToken)
     {
+        await Task.Run(async () =>
+        { }, cancellationToken);
         // TODO: Implement email sending logic here. For now, we will just simulate the email sending process.
     }
 }

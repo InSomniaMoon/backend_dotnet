@@ -19,18 +19,20 @@ public class GetStructureMembersQueryHandler(GestionMaterielDbContext db)
             .AsNoTracking()
             .Where(s => s.Id == query.StructureId)
             .Select(s => new { Code = s.CodeStructure, s.Type })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (structure is null)
-        {
-            throw new KeyNotFoundException($"Structure avec l'id {query.StructureId} inexistante.");
-        }
+            .FirstOrDefaultAsync(cancellationToken) ?? throw new KeyNotFoundException($"Structure avec l'id {query.StructureId} inexistante.");
 
         var usersQuery = db.Users
             .AsNoTracking()
             .Include(u => u.UserStructures)
+            .Where(u =>
+                string.IsNullOrEmpty(query.Q)
+                || u.FirstName.Contains(query.Q)
+                || EF.Functions.ILike(u.LastName, $"%{query.Q}%")
+                || EF.Functions.ILike(u.Email, $"%{query.Q}%"))
             .Where(u => u.UserStructures.Any(us => EF.Functions.Like(us.Structure.CodeStructure,
                 structure!.Type.ComputeCodeStructureMask(structure.Code) + "%")))
+
+
             .Select(user => new UserWithStructuresResponse
             {
                 Id = user.Id,
