@@ -17,14 +17,10 @@ public class CreateUserRequest
     [MaxLength(255)]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
-    [MinLength(8)]
-    [MaxLength(200)]
-    public string Password { get; set; } = string.Empty;
-
     [Phone]
     [MaxLength(20)]
     public string? Phone { get; set; }
 
     public string Role { get; set; } = "User";
+    public int StructureId { get; set; }
 }

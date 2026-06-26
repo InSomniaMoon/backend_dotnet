@@ -7,6 +7,7 @@ using GestionMateriel.Presentation.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using Serilog;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -52,7 +53,11 @@ builder.Services
             return new BadRequestObjectResult(response);
         };
     });
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    // Specify the OpenAPI version to use
+    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
+});
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -108,6 +113,8 @@ Directory.CreateDirectory(uploadsPhysicalPath);
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+
 }
 else
 {

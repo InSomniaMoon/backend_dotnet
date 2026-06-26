@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using AutoMapper;
 using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Responses;
@@ -9,14 +10,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Handlers.Commands.Users;
 
-public class CreateUserCommandHandler(GestionMaterielDbContext db, IMapper mapper)
+public class CreateUserCommandHandler(
+    GestionMaterielDbContext db,
+    SmtpClient smtpClient
+    )
     : IRequestHandler<CreateUserCommand, UserResponse>
 {
     public async Task<UserResponse> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         var existing = await db.Users.AnyAsync(u => u.Email == command.Request.Email, cancellationToken);
         if (existing)
-            throw new InvalidOperationException("An account already exists with this email.");
+            throw new InvalidOperationException("Un utilisateur existe déjà avec cet email.");
 
         var user = new User
         {
@@ -24,12 +28,34 @@ public class CreateUserCommandHandler(GestionMaterielDbContext db, IMapper mappe
             LastName = command.Request.LastName,
             Email = command.Request.Email,
             Phone = command.Request.Phone,
-            Password = BCrypt.Net.BCrypt.HashPassword(command.Request.Password),
-            Role = RoleEnum.FromString(command.Request.Role)
+            // random string of 12 characters
+            Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N").Substring(0, 12)),
+            Role = RoleEnum.FromString(command.Request.Role),
+            UserStructures =
+            [
+                new UserStructure
+                {
+                    StructureId = command.Request.StructureId
+                }
+            ]
         };
 
         await db.Users.AddAsync(user, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        return mapper.Map<UserResponse>(user);
+        await SendEmailToUser(user, cancellationToken);
+        return new UserResponse
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            Phone = user.Phone,
+            Role = user.Role.Value
+        };
+    }
+
+    private async Task SendEmailToUser(User user, CancellationToken cancellationToken)
+    {
+        // TODO: Implement email sending logic here. For now, we will just simulate the email sending process.
     }
 }
