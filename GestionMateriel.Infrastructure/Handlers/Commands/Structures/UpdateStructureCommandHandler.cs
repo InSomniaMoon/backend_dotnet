@@ -18,6 +18,7 @@ public class UpdateStructureCommandHandler(GestionMaterielDbContext db, IMapper 
 
         entity.Color = command.Color;
         entity.Name = command.Name;
+        entity.Image = command.ImageUrl;
 
         // update Depedant UserStructures. each user has role user for the structure
         var existingMembers = entity.UserStructures.Select(us => us.UserId).ToList();

@@ -4,5 +4,6 @@ public record UpdateStructureCommand(
     int Id,
     string Color,
     string Name,
-    List<int> MembersIds
+    List<int> MembersIds,
+    string? ImageUrl
 );

@@ -1,3 +1,4 @@
+using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests;
 using GestionMateriel.Application.DTOs.Requests.Structures;
@@ -50,7 +51,24 @@ public class StructuresController(
         IRequestHandler<UpdateStructureCommand, StructureResponse?> updateStructure,
         CancellationToken cancellationToken)
     {
-        var result = await updateStructure.Handle(new UpdateStructureCommand(structureId, request.Color!, request.Name, request.Members), cancellationToken);
+        var result = await updateStructure.Handle(new UpdateStructureCommand(structureId, request.Color!, request.Name, request.Members, request.Image), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
+
+    [HttpPost("images")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadStructureImage([FromForm] IFormFile image,
+       IRequestHandler<UploadImageCommand, ImageCreatedResponse> uploadImage,
+       CancellationToken cancellationToken)
+    {
+        if (image is null || image.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        await using var stream = image.OpenReadStream();
+        var result =
+            await uploadImage.Handle(new UploadImageCommand(stream, "structures", image.FileName), cancellationToken);
+        return Created("", result);
+    }
+
 }
