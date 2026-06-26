@@ -14,7 +14,7 @@ public class JwtTokenService(IOptions<JwtSettings> options) : IJwtTokenService
 {
     private readonly JwtSettings _settings = options.Value;
 
-    public (string accessToken, DateTime expiresAtUtc) GenerateAccessToken(User user, Structure? selectedStructure)
+    public (string accessToken, DateTime expiresAtUtc) GenerateAccessToken(User user, RoleEnum structureRole, Structure? selectedStructure = null)
     {
         var expiresAtUtc = DateTime.UtcNow.AddMinutes(_settings.ExpirationMinutes);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
@@ -38,9 +38,10 @@ public class JwtTokenService(IOptions<JwtSettings> options) : IJwtTokenService
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new(ClaimTypes.Role, user.Role.ToString()),
+            new("app_role", user.Role.ToString()),
             new("firstName", user.FirstName),
             new("lastName", user.LastName),
+            new(ClaimTypes.Role, structureRole.ToString()),
             new("structureId", selectedStructure?.Id.ToString() ?? string.Empty),
             new("structureType", selectedStructure?.Type.ToString() ?? string.Empty),
             new("structureCode", selectedStructure?.CodeStructure ?? string.Empty),

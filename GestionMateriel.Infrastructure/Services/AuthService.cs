@@ -38,7 +38,8 @@ public class AuthService(
             return null;
         }
 
-        return await BuildAuthResponseAsync(user, user.UserStructures.FirstOrDefault()?.Structure, cancellationToken);
+        var UserStructure = user.UserStructures.FirstOrDefault();
+        return await BuildAuthResponseAsync(user, UserStructure?.Role ?? RoleEnum.User, UserStructure?.Structure, cancellationToken);
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request,
@@ -60,7 +61,8 @@ public class AuthService(
         await db.Users.AddAsync(user, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        return await BuildAuthResponseAsync(user, null, cancellationToken);
+        var UserStructure = user.UserStructures.FirstOrDefault();
+        return await BuildAuthResponseAsync(user, UserStructure?.Role ?? RoleEnum.User, UserStructure?.Structure, cancellationToken);
     }
 
     public async Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest request,
@@ -76,18 +78,18 @@ public class AuthService(
             return null;
 
         var user = storedToken.User;
-        var structure = user.UserStructures.FirstOrDefault()?.Structure;
+        var UserStructure = user.UserStructures.FirstOrDefault();
 
         db.RefreshTokens.Remove(storedToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        return await BuildAuthResponseAsync(user, structure, cancellationToken);
+        return await BuildAuthResponseAsync(user, UserStructure?.Role ?? RoleEnum.User, UserStructure?.Structure, cancellationToken);
     }
 
-    private async Task<AuthResponse> BuildAuthResponseAsync(User user, Structure? selectedStructure,
+    private async Task<AuthResponse> BuildAuthResponseAsync(User user, RoleEnum selectStructureRole, Structure? selectedStructure,
         CancellationToken cancellationToken = default)
     {
-        var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user, selectedStructure);
+        var (accessToken, expiresAtUtc) = jwtTokenService.GenerateAccessToken(user, selectStructureRole, selectedStructure);
         var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
 
         await db.RefreshTokens.AddAsync(new RefreshToken
@@ -146,6 +148,6 @@ public class AuthService(
         if (user is null)
             return null;
 
-        return await BuildAuthResponseAsync(user.User, user.Structure, cancellationToken);
+        return await BuildAuthResponseAsync(user.User, user.Role, user.Structure, cancellationToken);
     }
 }

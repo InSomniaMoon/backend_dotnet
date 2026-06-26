@@ -86,9 +86,9 @@ builder.Services
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy =>
-        policy.RequireAuthenticatedUser().RequireRole("admin", "app_admin"))
+        policy.RequireAuthenticatedUser().RequireRole("admin"))
     .AddPolicy("AppAdmin", policy =>
-         policy.RequireAuthenticatedUser().RequireRole("app_admin"));
+         policy.RequireAuthenticatedUser().RequireClaim("app_role", "admin"));
 
 builder.Services.AddCors(options =>
 {
