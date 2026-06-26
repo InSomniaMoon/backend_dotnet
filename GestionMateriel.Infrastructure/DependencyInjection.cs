@@ -13,8 +13,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") ??
-                               throw new InvalidOperationException("DefaultConnection is missing.");
+        var connectionString = ConnectionStringResolver.Resolve(configuration);
 
         services.AddDbContext<GestionMaterielDbContext>(options =>
             options.UseNpgsql(connectionString));

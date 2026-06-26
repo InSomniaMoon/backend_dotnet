@@ -38,6 +38,6 @@ public class GestionMaterielDbContextFactory : IDesignTimeDbContextFactory<Gesti
             .AddEnvironmentVariables()
             .Build();
 
-        return configuration.GetConnectionString("DefaultConnection")!;
+        return ConnectionStringResolver.Resolve(configuration);
     }
 }
