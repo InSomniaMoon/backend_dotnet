@@ -373,3 +373,18 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+public class PasswordResetTokenConfiguration : IEntityTypeConfiguration<PasswordResetToken>
+{
+    public void Configure(EntityTypeBuilder<PasswordResetToken> builder)
+    {
+        builder.HasKey(prt => prt.Email);
+
+        builder.Property(prt => prt.Email)
+            .HasMaxLength(255)
+            .IsUnicode(false);
+
+        builder.Property(prt => prt.Token)
+            .IsRequired();
+    }
+}

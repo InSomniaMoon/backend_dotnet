@@ -21,11 +21,16 @@ public static class DependencyInjection
 
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.Configure<FileStorageOptions>(configuration.GetSection("FileStorage"));
+        services.Configure<EmailSettings>(configuration.GetSection("Email"));
+        services.Configure<PasswordResetSettings>(configuration.GetSection("PasswordReset"));
+        services.Configure<FrontendSettings>(configuration.GetSection("Frontend"));
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITenantProvider, TenantProvider>();
         services.AddScoped<IImageStorageService, LocalImageStorageService>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddScoped<IPasswordResetService, PasswordResetService>();
 
         RegisterHandlers(services, typeof(DependencyInjection).Assembly);
 
