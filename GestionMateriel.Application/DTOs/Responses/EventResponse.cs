@@ -7,9 +7,11 @@ public class EventResponse
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int StructureId { get; set; }
+
     public int? CreatedById { get; set; }
     public UserResponse? CreatedBy { get; set; }
     public string? Comment { get; set; }
+    public required StructureResponse Structure { get; set; }
 
 }
 

@@ -27,6 +27,12 @@ public class GetEventsByStructureQueryHandler(GestionMaterielDbContext db)
                 StructureId = e.StructureId,
                 Comment = e.Comment,
                 CreatedById = e.UserId,
+                Structure = new StructureResponse()
+                {
+                    Id = e.Structure.Id,
+                    Name = e.Structure.Name,
+                    Color = e.Structure.Color,
+                },
             })
             .ToListAsync(cancellationToken);
         return events;
