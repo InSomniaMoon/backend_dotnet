@@ -34,7 +34,12 @@ public class GetActualEventsQueryHandler(GestionMaterielDbContext db)
                 },
                 CreatedById = e.UserId,
                 StructureId = e.StructureId,
-
+                Structure = new StructureResponse()
+                {
+                    Id = e.Structure.Id,
+                    Name = e.Structure.Name,
+                    Color = e.Structure.Color,
+                },
                 Comment = e.Comment,
                 Items = e.Subscriptions.Select(i => new ItemWithQuantityResponse
                 {

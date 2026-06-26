@@ -27,7 +27,12 @@ public class GetEventByIdQueryHandler(GestionMaterielDbContext db)
                 LastName = entity.CreatedBy.LastName,
                 FirstName = entity.CreatedBy.FirstName,
             },
-
+            Structure = new StructureResponse()
+            {
+                Id = entity.Structure.Id,
+                Name = entity.Structure.Name,
+                Color = entity.Structure.Color,
+            },
             Items = entity.Subscriptions.Select(es => new ItemWithQuantityResponse
             {
                 Id = es.Item.Id,
