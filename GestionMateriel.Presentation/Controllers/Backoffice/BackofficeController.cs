@@ -1,3 +1,11 @@
+using GestionMateriel.Application.DTOs.Common;
+using GestionMateriel.Application.DTOs.Requests;
+using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.Features.Backoffice.Commands;
+using GestionMateriel.Application.Features.Backoffice.Queries;
+using GestionMateriel.Application.Features.Users.Queries;
+using GestionMateriel.Application.Messaging;
+using GestionMateriel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,16 +23,19 @@ namespace GestionMateriel.Presentation.Controllers.Backoffice;
 // });
 
 [ApiController]
-[Route("/api/backoffice")]
-[Authorize(Policy = "AppAdmin")]
+[Route("api/backoffice")]
+[Authorize("AppAdmin")]
 
 public class BackofficeController : ControllerBase
 {
     [HttpGet("users")]
-    public IActionResult GetPaginatedUsers()
+    public async Task<IActionResult> GetPaginatedUsers(
+    [FromQuery] PaginatedRequest request,
+    IRequestHandler<PaginatedRequest, PaginatedResponse<UserResponse>> handler,
+    CancellationToken cancellationToken
+)
     {
-        // Logic to retrieve users
-        return Ok(new { message = "Get users" });
+        return Ok(await handler.Handle(request, cancellationToken));
     }
 
     [HttpPost("users")]
@@ -35,24 +46,36 @@ public class BackofficeController : ControllerBase
     }
 
     [HttpGet("users/{userId}/structures")]
-    public IActionResult GetUserStructures(int userId)
+    public async Task<IActionResult> GetUserStructures([FromRoute] int userId,
+        IRequestHandler<GetUserStructuresQuery, List<StructureWithRoleResponse>> handler,
+        CancellationToken cancellationToken)
     {
+
+        var result = await handler.Handle(new GetUserStructuresQuery(userId), cancellationToken);
         // Logic to retrieve user structures
-        return Ok(new { message = $"Get structures for user {userId}" });
+        return Ok(result);
     }
 
     [HttpPut("users/{userId}/structures")]
-    public IActionResult UpdateUserStructures(int userId)
+    public async Task<IActionResult> UpdateUserStructures([FromRoute] int userId,
+    [FromBody] UpdateUserStructuresRequest request,
+    IRequestHandler<UpdateUserStructuresCommand, bool> handler,
+    CancellationToken cancellationToken)
     {
+
+        var result = await handler.Handle(new UpdateUserStructuresCommand(userId, request.Structures), cancellationToken);
         // Logic to update user structures
-        return Ok(new { message = $"Update structures for user {userId}" });
+        return Ok(result);
     }
 
     [HttpGet("structures")]
-    public IActionResult GetStructures()
+    public async Task<IActionResult> GetStructures(
+        [FromQuery] PaginatedRequest request,
+        IRequestHandler<PaginatedRequest, PaginatedResponse<StructureResponse>> handler,
+        CancellationToken cancellationToken
+    )
     {
-        // Logic to retrieve structures
-        return Ok(new { message = "Get structures" });
+        return Ok(await handler.Handle(request, cancellationToken));
     }
 
     [HttpPut("structures/{structureId}")]
