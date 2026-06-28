@@ -4,6 +4,7 @@ using GestionMateriel.Domain.Interfaces;
 using GestionMateriel.Infrastructure.Data.Configurations;
 using GestionMateriel.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 
 namespace GestionMateriel.Infrastructure.Data;
@@ -34,6 +35,31 @@ public class GestionMaterielDbContext(
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        // Les colonnes sont "timestamp without time zone" : Npgsql refuse d'y écrire un
+        // DateTime taggé Kind=Utc. On stocke donc en Unspecified (même valeur, juste le tag
+        // qui change) et on retague Utc à la lecture, car les valeurs stockées sont toujours
+        // des instants UTC (normalisés à la réception, cf. UtcDateTimeConverter côté JSON).
+        configurationBuilder.Properties<DateTime>()
+            .HaveConversion<UtcValueConverter>();
+
+        configurationBuilder.Properties<DateTime?>()
+            .HaveConversion<NullableUtcValueConverter>();
+    }
+
+    private class UtcValueConverter()
+        : ValueConverter<DateTime, DateTime>(
+            v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+    private class NullableUtcValueConverter()
+        : ValueConverter<DateTime?, DateTime?>(
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Unspecified) : v,
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -54,11 +80,22 @@ public class GestionMaterielDbContext(
         modelBuilder.ApplyConfiguration(new PasswordResetTokenConfiguration());
 
         ApplyTenantQueryFilters(modelBuilder);
+
+        // Toutes les dates sont stockées sans fuseau horaire (naive), telles que saisies.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetColumnType("timestamp without time zone");
+                }
+            }
+        }
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
-        NormalizeTrackedDateTimesToUtc();
         ApplyTenantScopeOnAddedEntities();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
@@ -66,39 +103,8 @@ public class GestionMaterielDbContext(
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
-        NormalizeTrackedDateTimesToUtc();
         ApplyTenantScopeOnAddedEntities();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
-    private void NormalizeTrackedDateTimesToUtc()
-    {
-        foreach (var entry in ChangeTracker.Entries()
-                     .Where(e => e.State is EntityState.Added or EntityState.Modified))
-        {
-            foreach (var property in entry.Properties)
-            {
-                if (property.Metadata.ClrType == typeof(DateTime) && property.CurrentValue is DateTime dt)
-                {
-                    property.CurrentValue = dt.Kind switch
-                    {
-                        DateTimeKind.Utc => dt,
-                        DateTimeKind.Local => dt.ToUniversalTime(),
-                        _ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
-                    };
-                }
-
-                if (property.Metadata.ClrType == typeof(DateTime?) && property.CurrentValue is DateTime nullableDt)
-                {
-                    property.CurrentValue = nullableDt.Kind switch
-                    {
-                        DateTimeKind.Utc => nullableDt,
-                        DateTimeKind.Local => nullableDt.ToUniversalTime(),
-                        _ => DateTime.SpecifyKind(nullableDt, DateTimeKind.Utc)
-                    };
-                }
-            }
-        }
     }
 
     protected virtual void ApplyTenantQueryFilters(ModelBuilder modelBuilder)

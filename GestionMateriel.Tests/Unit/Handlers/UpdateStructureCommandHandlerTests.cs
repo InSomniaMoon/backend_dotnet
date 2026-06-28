@@ -16,7 +16,7 @@ public class UpdateStructureCommandHandlerTests
         db.Structures.Add(new Structure { Id = 1, Name = "Old", CodeStructure = "GL1", Type = StructureTypeEnum.Groupe });
         await db.SaveChangesAsync();
         var handler = new UpdateStructureCommandHandler(db, TestHelper.CreateMapper());
-        var result = await handler.Handle(new UpdateStructureCommand(1, "NewColor", "New", [1, 2, 3]), CancellationToken.None);
+        var result = await handler.Handle(new UpdateStructureCommand(1, "NewColor", "New", [1, 2, 3], ""), CancellationToken.None);
         Assert.NotNull(result);
         Assert.Equal("New", result!.Name);
     }
