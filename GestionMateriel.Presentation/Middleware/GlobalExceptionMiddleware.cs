@@ -26,16 +26,16 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
         catch (KeyNotFoundException ex)
         {
             logger.LogWarning(ex, "Ressource non trouvée");
-            await WriteErrorAsync(context, StatusCodes.Status404NotFound, "Ressource non trouvée.", ex.Message);
+            await WriteErrorAsync(context, StatusCodes.Status404NotFound, "Ressource non trouvée.");
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException _)
         {
             await WriteErrorAsync(context, StatusCodes.Status499ClientClosedRequest, "Opération annulée par le client.");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Exception non gérée");
-            await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "Une erreur inattendue est survenue.", ex.Message);
+            await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "Une erreur inattendue est survenue.");
         }
     }
 
