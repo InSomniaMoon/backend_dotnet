@@ -4,6 +4,7 @@ using GestionMateriel.Application.DTOs.Requests.Events;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Features.Events.Queries;
 using GestionMateriel.Application.Messaging;
+using GestionMateriel.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,8 +30,11 @@ public class EventsController(
     public async Task<IActionResult> GetEvents([FromQuery] GetEventsRequest request,
         CancellationToken cancellationToken)
     {
-        var events =
-            await getByStructure.Handle(new GetEventsByStructureQuery(request.StartDate, request.EndDate), cancellationToken);
+
+        var StructureType = User.Claims.FirstOrDefault(c => c.Type == "structureType")!.Value;
+        var StructureCode = User.Claims.FirstOrDefault(c => c.Type == "structureCode")!.Value;
+
+        var events = await getByStructure.Handle(new GetEventsByStructureQuery(request.StartDate, request.EndDate, StructureTypeEnum.FromString(StructureType), StructureCode), cancellationToken);
         return Ok(events);
     }
 

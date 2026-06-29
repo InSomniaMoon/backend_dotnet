@@ -10,7 +10,7 @@ public class CreateItemIssueCommandHandlerTests
     public async Task Handle_Should_Create_Issue()
     {
         await using var db = TestHelper.CreateDbContext();
-        var handler = new CreateItemIssueCommandHandler(db, TestHelper.CreateMapper());
+        var handler = new CreateItemIssueCommandHandler(db);
         var result = await handler.Handle(new CreateItemIssueCommand(1, 1, new CreateItemIssueRequest
         {
             Usable = false,

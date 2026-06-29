@@ -8,7 +8,7 @@ using GestionMateriel.Infrastructure.Data;
 
 namespace GestionMateriel.Infrastructure.Handlers.Commands.Items.Issues;
 
-public class CreateItemIssueCommandHandler(GestionMaterielDbContext db, IMapper mapper)
+public class CreateItemIssueCommandHandler(GestionMaterielDbContext db)
     : IRequestHandler<CreateItemIssueCommand, ItemIssueResponse>
 {
     public async Task<ItemIssueResponse> Handle(CreateItemIssueCommand command, CancellationToken cancellationToken)

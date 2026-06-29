@@ -20,7 +20,7 @@ public class GetEventsByStructureQueryHandlerTests
         );
         await db.SaveChangesAsync();
         var handler = new GetEventsByStructureQueryHandler(db);
-        var result = await handler.Handle(new GetEventsByStructureQuery(now.AddDays(-1), now.AddDays(2)), CancellationToken.None);
+        var result = await handler.Handle(new GetEventsByStructureQuery(now.AddDays(-1), now.AddDays(2), Domain.Enums.StructureTypeEnum.Groupe, "406981800"), CancellationToken.None);
         Assert.Single(result);
     }
 }

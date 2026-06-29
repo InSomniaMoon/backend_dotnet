@@ -16,7 +16,7 @@ public class GetItemIssuesByItemQueryHandlerTests
             new ItemIssue { Id = 2, ItemId = 2, Value = "B", Status = IssueStatusEnum.Open, ReportedBy = 1 }
         );
         await db.SaveChangesAsync();
-        var handler = new GetItemIssuesByItemQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetItemIssuesByItemQueryHandler(db);
         var result = await handler.Handle(new GetItemIssuesByItemQuery(1), CancellationToken.None);
         Assert.Single(result);
     }

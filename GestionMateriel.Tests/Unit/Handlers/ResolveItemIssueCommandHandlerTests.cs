@@ -13,7 +13,7 @@ public class ResolveItemIssueCommandHandlerTests
         using var db = TestHelper.CreateDbContext();
         db.ItemIssues.Add(new ItemIssue { Id = 1, ItemId = 1, Value = "Issue", Status = IssueStatusEnum.Open, ReportedBy = 1 });
         await db.SaveChangesAsync();
-        var handler = new ResolveItemIssueCommandHandler(db, TestHelper.CreateMapper());
+        var handler = new ResolveItemIssueCommandHandler(db);
         var result = await handler.Handle(new ResolveItemIssueCommand(1), CancellationToken.None);
         Assert.NotNull(result);
         Assert.Equal(IssueStatusEnum.Resolved.ToString(), result!.Status);
