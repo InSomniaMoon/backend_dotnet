@@ -3,6 +3,7 @@ using GestionMateriel.Application.Commands;
 using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.Messaging;
 using GestionMateriel.Domain.Entities;
+using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Data;
 
 namespace GestionMateriel.Infrastructure.Handlers.Commands.Items.Issues;
@@ -23,13 +24,28 @@ public class CreateItemIssueCommandHandler(GestionMaterielDbContext db, IMapper 
         };
         await db.ItemIssues.AddAsync(issue, cancellationToken);
 
+        var item = await db.Items.FindAsync([command.ItemId], cancellationToken);
         if (!command.Request.Usable)
         {
-            var item = await db.Items.FindAsync([command.ItemId], cancellationToken);
             item?.Usable = false;
+            item?.State = ItemState.KO;
+        }
+        else
+        {
+            item?.Usable = true;
+            item?.State = ItemState.NOK;
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        return mapper.Map<ItemIssueResponse>(issue);
+        return new ItemIssueResponse
+        {
+            Id = issue.Id,
+            ItemId = issue.ItemId,
+            CreatedAt = issue.CreatedAt,
+            Status = issue.Status.ToString(),
+            Value = issue.Value,
+            ReportedById = issue.ReportedBy,
+            AffectedQuantity = issue.AffectedQuantity,
+        };
     }
 }

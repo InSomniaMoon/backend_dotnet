@@ -18,6 +18,8 @@ public class ItemIssue : BaseEntity
     public int AffectedQuantity { get; set; }
     [Column("resolution_date")]
     public DateTime? ResolutionDate { get; set; }
+    [Column("is_item_usable")]
+    public bool IsItemUsable { get; set; } = false;
 
     // Navigation properties
     public virtual Item Item { get; set; } = null!;

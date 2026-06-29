@@ -10,4 +10,6 @@ public class ItemIssueResponse
     public int AffectedQuantity { get; set; }
     public DateTime? ResolutionDate { get; set; }
     public DateTime CreatedAt { get; set; }
+    public ItemResponse? Item { get; set; }
+    public UserResponse? ReportedBy { get; set; }
 }
