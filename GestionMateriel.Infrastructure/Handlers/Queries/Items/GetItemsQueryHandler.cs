@@ -1,15 +1,14 @@
-using AutoMapper;
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Responses;
-using GestionMateriel.Application.Messaging;
 using GestionMateriel.Application.Features.Items.Queries;
+using GestionMateriel.Application.Messaging;
 using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionMateriel.Infrastructure.Handlers.Queries.Items;
 
-public class GetItemsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
+public class GetItemsQueryHandler(GestionMaterielDbContext db)
     : IRequestHandler<GetItemsQuery, PaginatedResponse<ItemResponse>>
 {
     public async Task<PaginatedResponse<ItemResponse>> Handle(GetItemsQuery request,
@@ -19,9 +18,15 @@ public class GetItemsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
                 .AsNoTracking()
                 .Include(i => i.Category)
                 .Include(i => i.Issues.Where(ii => ii.Status == IssueStatusEnum.Open))
-                .Where(i => string.IsNullOrEmpty(request.Q) ||
-                            i.Name.Contains(request.Q, StringComparison.OrdinalIgnoreCase))
+                .Where(i => string.IsNullOrEmpty(request.Q)
+                || EF.Functions.ILike(i.Name, $"%{request.Q}%")
+                || EF.Functions.ILike(i.Category.Name, $"%{request.Q}%"))
             ;
+
+        if (request.CategoryId.HasValue)
+        {
+            query = query.Where(i => i.CategoryId == request.CategoryId.Value);
+        }
 
         var total = await query.CountAsync(cancellationToken);
 
@@ -40,13 +45,34 @@ public class GetItemsQueryHandler(GestionMaterielDbContext db, IMapper mapper)
         };
 
         var items = await query
+        .Select(i => new ItemResponse
+        {
+            Id = i.Id,
+            Name = i.Name,
+            DateOfBuy = i.DateOfBuy,
+            State = i.State.ToString(),
+            Description = i.Description,
+            Image = i.Image,
+            Stock = i.Stock,
+            Usable = i.Usable,
+            UsableStock = i.UsableStock,
+            StructureId = i.StructureId,
+            Category = new ItemCategoryResponse
+            {
+                Id = i.Category.Id,
+                Name = i.Category.Name,
+                Identified = i.Category.Identified
+            },
+
+
+        })
             .Skip((request.Page - 1) * request.Size)
             .Take(request.Size)
             .ToListAsync(cancellationToken);
 
         return new PaginatedResponse<ItemResponse>
         {
-            Data = items.Select(mapper.Map<ItemResponse>),
+            Data = items,
             TotalCount = total,
             Page = request.Page,
             Size = request.Size

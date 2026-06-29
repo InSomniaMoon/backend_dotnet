@@ -5,5 +5,6 @@ public record GetItemsQuery(
     int Size = 20,
     string? Q = null,
     string? OrderDir = "asc",
-    string? OrderBy = null
+    string? OrderBy = null,
+    int? CategoryId = null
 );

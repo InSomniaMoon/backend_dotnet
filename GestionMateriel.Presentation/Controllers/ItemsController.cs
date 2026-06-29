@@ -31,7 +31,7 @@ public class ItemsController(
     public async Task<IActionResult> GetItems([FromQuery] GetPaginatedItemsRequest request,
         CancellationToken cancellationToken)
     {
-        var query = new GetItemsQuery(request.Page, request.Size, request.Q, request.OrderDir, request.OrderBy);
+        var query = new GetItemsQuery(request.Page, request.Size, request.Q, request.OrderDir, request.OrderBy, request.CategoryId);
         var result = await getAll.Handle(query, cancellationToken);
         return Ok(result);
     }

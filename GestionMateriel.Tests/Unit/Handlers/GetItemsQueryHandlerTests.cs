@@ -17,7 +17,7 @@ public class GetItemsQueryHandlerTests
             new Item { Id = 3, Name = "C", CategoryId = 1, StructureId = 1, Stock = 1, Usable = true }
         );
         await db.SaveChangesAsync();
-        var handler = new GetItemsQueryHandler(db, TestHelper.CreateMapper());
+        var handler = new GetItemsQueryHandler(db);
         var result = await handler.Handle(new GetItemsQuery(Page: 1, Size: 2), CancellationToken.None);
         Assert.Equal(3, result.TotalCount);
         Assert.Equal(2, result.Data.Count());
