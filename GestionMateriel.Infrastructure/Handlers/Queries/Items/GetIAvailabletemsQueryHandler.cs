@@ -67,56 +67,35 @@ public class GetAvailableItemsForDatesQueryHandler(
         var items = await orderedQuery
             .Skip((request.Page - 1) * request.Size)
             .Take(request.Size)
-            .Select(x => new
+            .Select(item => new ItemWithRestResponse
             {
-                x.Item.Id,
-                x.Item.Name,
-                x.Item.Description,
-                x.Item.CategoryId,
-                x.Item.StructureId,
-                x.Item.Usable,
-                x.Item.Stock,
-                x.Item.UsableStock,
-                x.Item.State,
-                x.Item.DateOfBuy,
-                x.Item.Image,
-                CategoryResponseId = x.Item.Category.Id,
-                CategoryName = x.Item.Category.Name,
-                CategoryStructureId = x.Item.Category.StructureId,
-                CategoryIdentified = x.Item.Category.Identified,
-                x.UsedQuantity
+                Id = item.Item.Id,
+                Name = item.Item.Name,
+                Description = item.Item.Description,
+                CategoryId = item.Item.CategoryId,
+                StructureId = item.Item.StructureId,
+                Usable = item.Item.Usable,
+                Stock = item.Item.Stock,
+                Rest = item.Item.UsableStock - item.UsedQuantity,
+                UsableStock = item.Item.UsableStock,
+                State = item.Item.State.ToString(),
+                DateOfBuy = item.Item.DateOfBuy,
+                Image = item.Item.Image,
+                Category = new ItemCategoryResponse
+                {
+                    Id = item.Item.Category.Id,
+                    Name = item.Item.Category.Name,
+                    StructureId = item.Item.Category.StructureId,
+                    Identified = item.Item.Category.Identified
+                }
             })
             .ToListAsync(cancellationToken);
 
-        var responses = items.Select(item =>
-        {
-            return new ItemWithRestResponse
-            {
-                Id = item.Id,
-                Name = item.Name,
-                Description = item.Description,
-                CategoryId = item.CategoryId,
-                StructureId = item.StructureId,
-                Usable = item.Usable,
-                Stock = item.Stock,
-                Rest = item.UsableStock - item.UsedQuantity,
-                UsableStock = item.UsableStock,
-                State = item.State.ToString(),
-                DateOfBuy = item.DateOfBuy,
-                Image = item.Image,
-                Category = new ItemCategoryResponse
-                {
-                    Id = item.CategoryResponseId,
-                    Name = item.CategoryName,
-                    StructureId = item.CategoryStructureId,
-                    Identified = item.CategoryIdentified
-                }
-            };
-        }).ToList();
+
 
         return new PaginatedResponse<ItemWithRestResponse>
         {
-            Data = responses,
+            Data = items,
             TotalCount = total,
             Page = request.Page,
             Size = request.Size
