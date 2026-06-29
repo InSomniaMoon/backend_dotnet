@@ -1,11 +1,11 @@
 using GestionMateriel.Application.DTOs.Common;
 using GestionMateriel.Application.DTOs.Requests;
 using GestionMateriel.Application.DTOs.Responses;
+using GestionMateriel.Application.DTOs.Responses.Backoffice;
 using GestionMateriel.Application.Features.Backoffice.Commands;
 using GestionMateriel.Application.Features.Backoffice.Queries;
 using GestionMateriel.Application.Features.Users.Queries;
 using GestionMateriel.Application.Messaging;
-using GestionMateriel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,5 +90,23 @@ public class BackofficeController : ControllerBase
     {
         // Logic to upload an image for a structure
         return Ok(new { message = "Upload structure image" });
+    }
+
+    [HttpPost("structures/import")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ImportStructures([FromForm] IFormFile file,
+        IRequestHandler<ImportStructuresCommand, ImportStructuresResponse> importStructures,
+        CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        await using var stream = file.OpenReadStream();
+
+        var result = await importStructures.Handle(
+            new ImportStructuresCommand(stream, file.FileName, cancellationToken),
+            cancellationToken);
+        return Ok(result);
     }
 }

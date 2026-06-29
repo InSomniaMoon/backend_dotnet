@@ -138,7 +138,7 @@ public class GestionMaterielDbContext(
 
     private void ApplyTenantScopeOnAddedEntities()
     {
-        if (!_tenantProvider.IsResolved)
+        if (!_tenantProvider.IsResolved || _tenantProvider.IsAppAdmin)
         {
             return;
         }

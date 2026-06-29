@@ -28,7 +28,7 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
             logger.LogWarning(ex, "Ressource non trouvée");
             await WriteErrorAsync(context, StatusCodes.Status404NotFound, "Ressource non trouvée.");
         }
-        catch (OperationCanceledException _)
+        catch (OperationCanceledException)
         {
             await WriteErrorAsync(context, StatusCodes.Status499ClientClosedRequest, "Opération annulée par le client.");
         }

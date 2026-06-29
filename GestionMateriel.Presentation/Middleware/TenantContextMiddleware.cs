@@ -11,8 +11,9 @@ public class TenantContextMiddleware(RequestDelegate next)
 
         var structureCode = Normalize(context.User.FindFirst("structureCode")?.Value);
         var structureMask = Normalize(context.User.FindFirst("structureMask")?.Value);
+        var isAppAdmin = context.User.FindFirst("app_role")?.Value == "admin";
 
-        tenantProvider.SetTenant(structureId, structureCode, structureMask);
+        tenantProvider.SetTenant(structureId, structureCode, structureMask, isAppAdmin);
 
         await next(context);
     }
