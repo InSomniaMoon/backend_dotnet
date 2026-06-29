@@ -2,6 +2,7 @@ using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.DTOs.Responses.Structures;
 using GestionMateriel.Application.Features.Structures.Queries;
 using GestionMateriel.Application.Messaging;
+using GestionMateriel.Domain.Enums;
 using GestionMateriel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,13 +19,33 @@ public class GetCurrentStructureWithChildrenQueryHandler(
         var structure =
             await db.Structures
                 .AsNoTracking()
+                .Select(i => new StructureWithMembersResponse
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    CodeStructure = i.CodeStructure,
+                    NomStructure = i.NomStructure,
+                    Type = i.Type.Value,
+                    Color = i.Color,
+                    Image = i.Image,
+                    ParentCode = i.ParentCode,
+                    Members = i.UserStructures.Select(m => new UserResponse
+                    {
+                        Id = m.User.Id,
+                        FirstName = m.User.FirstName,
+                        LastName = m.User.LastName,
+                        Email = m.User.Email,
+                        Role = m.Role.Value
+                    }).ToList()
+                })
                 .FirstOrDefaultAsync(s => s.Id == request.StructureId, cancellationToken) ?? throw new KeyNotFoundException($"Structure with ID {request.StructureId} not found.");
-        var structureMask = structure.Type.ComputeCodeStructureMask(
+        var structureMask = StructureTypeEnum.FromString(structure.Type).ComputeCodeStructureMask(
             structure.CodeStructure);
 
         var children = await db.Structures
             .AsNoTracking()
             .Where(s => EF.Functions.Like(s.CodeStructure, structureMask + "%"))
+            .Where(s => s.Id != structure.Id)
             .Select(s => new StructureWithMembersResponse
             {
                 Id = s.Id,
@@ -47,14 +68,7 @@ public class GetCurrentStructureWithChildrenQueryHandler(
 
         return new StructureWithChildrenResponse
         {
-            Structure = new StructureWithMembersResponse()
-            {
-                Id = structure.Id,
-                Name = structure.Name,
-                NomStructure = structure.NomStructure,
-                CodeStructure = structure.CodeStructure,
-                Type = structure.Type.Value,
-            },
+            Structure = structure,
             Children = children
         };
     }

@@ -40,17 +40,17 @@ public sealed class StructureTypeEnum
 
         if (Equals(Groupe))
         {
-            return codeStructure[..2];
+            return codeStructure[..^2];
         }
 
         if (Equals(National))
         {
-            return codeStructure[..4];
+            return codeStructure[..^4];
         }
 
         if (Equals(Territoire))
         {
-            return codeStructure[..6];
+            return codeStructure[..^6];
         }
 
         throw new InvalidOperationException($"Unknown structure type: {this}");

@@ -20,18 +20,7 @@ public class JwtTokenService(IOptions<JwtSettings> options) : IJwtTokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        //   $code_mask = match ($structure?->type) {
-        //       Structure::GROUPE, Structure::UNITE => substr($structure?->code_structure, 0, -2),
-
-        //       Structure::TERRITOIRE => substr($structure?->code_structure, 0, -4),
-        //       default => $structure?->code_structure,
-        //     };
-        var structureMask = selectedStructure?.Type switch
-        {
-            var t when t == StructureTypeEnum.Unite || t == StructureTypeEnum.Groupe => selectedStructure?.CodeStructure[..^2],
-            var t when t == StructureTypeEnum.Territoire => selectedStructure?.CodeStructure[..^4],
-            _ => selectedStructure?.CodeStructure
-        };
+        var structureMask = selectedStructure?.Type.ComputeCodeStructureMask(selectedStructure?.CodeStructure ?? "000000000");
 
 
         var claims = new List<Claim>

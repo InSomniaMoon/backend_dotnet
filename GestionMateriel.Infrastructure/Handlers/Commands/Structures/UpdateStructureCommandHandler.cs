@@ -16,29 +16,32 @@ public class UpdateStructureCommandHandler(GestionMaterielDbContext db, IMapper 
         var entity = await db.Structures.Include(s => s.UserStructures).FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
         if (entity is null) return null;
 
-        entity.Color = command.Color;
-        entity.Name = command.Name;
-        entity.Image = command.ImageUrl;
+        entity.Color = command.Color ?? entity.Color;
+        entity.Name = command.Name ?? entity.Name;
+        entity.Image = command.ImageUrl ?? entity.Image;
 
-        // update Depedant UserStructures. each user has role user for the structure
-        var existingMembers = entity.UserStructures.Select(us => us.UserId).ToList();
-        var membersToAdd = command.MembersIds.Except(existingMembers).ToList();
-        var membersToRemove = existingMembers.Except(command.MembersIds).ToList();
-        foreach (var memberId in membersToAdd)
+        if (command.MembersIds is not null)
         {
-            entity.UserStructures.Add(new Domain.Entities.UserStructure
+            // update Depedant UserStructures. each user has role user for the structure
+            var existingMembers = entity.UserStructures.Select(us => us.UserId).ToList();
+            var membersToAdd = command.MembersIds.Except(existingMembers).ToList();
+            var membersToRemove = existingMembers.Except(command.MembersIds).ToList();
+            foreach (var memberId in membersToAdd)
             {
-                UserId = memberId,
-                StructureId = entity.Id,
-                Role = RoleEnum.User
-            });
-        }
-        foreach (var memberId in membersToRemove)
-        {
-            var userStructure = entity.UserStructures.FirstOrDefault(us => us.UserId == memberId);
-            if (userStructure != null)
+                entity.UserStructures.Add(new Domain.Entities.UserStructure
+                {
+                    UserId = memberId,
+                    StructureId = entity.Id,
+                    Role = RoleEnum.User
+                });
+            }
+            foreach (var memberId in membersToRemove)
             {
-                entity.UserStructures.Remove(userStructure);
+                var userStructure = entity.UserStructures.FirstOrDefault(us => us.UserId == memberId);
+                if (userStructure != null)
+                {
+                    entity.UserStructures.Remove(userStructure);
+                }
             }
         }
 
