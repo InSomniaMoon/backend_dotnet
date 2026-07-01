@@ -2,7 +2,6 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using GestionMateriel.Application.DTOs.Requests.Items;
-using GestionMateriel.Application.DTOs.Responses;
 using GestionMateriel.Application.DTOs.Responses.Items;
 using GestionMateriel.Application.Features.Items.Commands;
 using GestionMateriel.Application.Messaging;
@@ -93,9 +92,38 @@ public class ImportItemsCommandHandler(
 
     }
 
+    private static Encoding DetectEncoding(byte[] bytes)
+    {
+        // Check UTF-8 BOM
+        if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
+            return Encoding.UTF8;
+
+        // Check UTF-16 LE BOM
+        if (bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE)
+            return Encoding.Unicode;
+
+        // Try strict UTF-8 validation (no fallback replacement characters)
+        try
+        {
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true).GetString(bytes);
+            return Encoding.UTF8;
+        }
+        catch (DecoderFallbackException)
+        {
+            return Encoding.Latin1;
+        }
+    }
+
     private static async Task<List<ImportItemPreview>> ParseCSVFile(Stream fileStream, CancellationToken cancellationToken)
     {
-        using var reader = new StreamReader(fileStream, Encoding.UTF8);
+        using var buffer = new MemoryStream();
+        await fileStream.CopyToAsync(buffer, cancellationToken);
+        var bytes = buffer.ToArray();
+        var encoding = DetectEncoding(bytes);
+        using var memStream = new MemoryStream(bytes);
+        using var reader = new StreamReader(memStream, encoding);
+
+
         var configuration = new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
         {
             Delimiter = ";",
@@ -113,7 +141,7 @@ public class ImportItemsCommandHandler(
                 r.CategoryName,
                 r.Quantity,
                 r.Status,
-                [],
+                r.Errors ?? [],
                 null))
             .ToList();
 
